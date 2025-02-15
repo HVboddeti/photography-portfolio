@@ -22,7 +22,7 @@ document.getElementById("contact-form").addEventListener("submit", async functio
     const message = formData.get("message");
 
     // Send WhatsApp Message using CallMeBot API
-    const whatsappNumber = "+15712838727"; // Use international format (e.g., +123456789)
+    const whatsappNumber = "15712838727"; // Use international format (e.g., +123456789)
     const apiKey = "7801597"; // Get your API key from CallMeBot
 
     const whatsappMessage = `New Contact Form Submission:\nName: ${name}\nEmail: ${email}\nMessage: ${message}`;
