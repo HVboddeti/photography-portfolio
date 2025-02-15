@@ -32,3 +32,21 @@ document.getElementById("contact-form").addEventListener("submit", async functio
     // Submit Form to FormSubmit
     this.submit();
 });
+
+
+document.getElementById("contact-form").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const formData = new FormData(this);
+    
+    fetch(this.action, {
+        method: this.method,
+        body: formData,
+    }).then(response => {
+        if (response.ok) {
+            window.location.href = "thank-you.html"; // Redirect after successful submission
+        } else {
+            alert("There was an error. Please try again.");
+        }
+    }).catch(error => console.error("Error:", error));
+});
