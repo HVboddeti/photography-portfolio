@@ -69,3 +69,20 @@ footer {
     padding: 20px;
     background: rgba(255, 255, 255, 0.2);
 }
+
+body { 
+    text-align: center; 
+    padding: 50px; 
+    font-family: Arial, sans-serif; 
+}
+
+h2 { 
+    color: #4CAF50; 
+}
+
+a { 
+    display: block; 
+    margin-top: 20px; 
+    color: #008CBA; 
+    text-decoration: none; 
+}
