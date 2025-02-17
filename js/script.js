@@ -32,3 +32,53 @@ document.getElementById("contact-form").addEventListener("submit", async functio
     // Submit Form to FormSubmit
     this.submit();
 });
+
+
+document.getElementById("addImageBtn").addEventListener("click", function () {
+    document.getElementById("uploadForm").style.display = "block";
+  });
+  
+  function closeForm() {
+    document.getElementById("uploadForm").style.display = "none";
+  }
+  
+  function uploadImage() {
+    const adminCode = document.getElementById("adminCode").value;
+    const correctCode = "1234"; // Change this to your secure admin code
+    const category = document.getElementById("categorySelect").value;
+    const fileInput = document.getElementById("imageUpload");
+  
+    if (adminCode !== correctCode) {
+      alert("Incorrect Admin Code!");
+      return;
+    }
+  
+    if (!fileInput.files.length) {
+      alert("Please select an image to upload.");
+      return;
+    }
+  
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+  
+    reader.onload = function (event) {
+      const img = document.createElement("img");
+      img.src = event.target.result;
+      img.alt = "New Image";
+  
+      const section =
+        category === "whispers"
+          ? document.querySelector(".portfolio__category:nth-child(2) .portfolio__grid")
+          : document.querySelector(".portfolio__category:nth-child(3) .portfolio__grid");
+  
+      const div = document.createElement("div");
+      div.appendChild(img);
+      section.appendChild(div);
+  
+      alert("Image uploaded successfully!");
+      closeForm();
+    };
+  
+    reader.readAsDataURL(file);
+  }
+  

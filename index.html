@@ -157,6 +157,24 @@
       <div class="footer__bar">
         Copyright © 2024 Harzio Bluehour. All rights reserved.
       </div>
+
+      <!-- Floating Add Image Button -->
+<button id="addImageBtn" class="floating-btn">+</button>
+
+<!-- Hidden Image Upload Form -->
+<div id="uploadForm" class="upload-form">
+  <div class="upload-content">
+    <h3>Admin Access</h3>
+    <input type="password" id="adminCode" placeholder="Enter Admin Code" />
+    <select id="categorySelect">
+      <option value="whispers">Whispers of Nature</option>
+      <option value="faces">Faces of Emotions</option>
+    </select>
+    <input type="file" id="imageUpload" accept="image/*" />
+    <button onclick="uploadImage()">Upload</button>
+    <button onclick="closeForm()">Cancel</button>
+  </div>
+</div>
     </footer>
 
     <script src="https://unpkg.com/scrollreveal"></script>
