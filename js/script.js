@@ -32,5 +32,3 @@ document.getElementById("contact-form").addEventListener("submit", async functio
     // Submit Form to FormSubmit
     this.submit();
 });
-
-
