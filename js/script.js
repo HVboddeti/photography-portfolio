@@ -35,12 +35,13 @@ document.getElementById("contact-form").addEventListener("submit", async functio
 
 
 document.getElementById("addImageBtn").addEventListener("click", function () {
-    document.getElementById("uploadForm").style.display = "block";
+    document.getElementById("uploadForm").classList.add("active");
   });
   
   function closeForm() {
-    document.getElementById("uploadForm").style.display = "none";
+    document.getElementById("uploadForm").classList.remove("active");
   }
+  
   
   function uploadImage() {
     const adminCode = document.getElementById("adminCode").value;
