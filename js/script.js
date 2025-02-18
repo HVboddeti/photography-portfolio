@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add Button Click Event
     addButton.addEventListener('click', function() {
         console.log('Add button clicked'); // Debug log
-        modal.style.display = 'block';
-        adminAuth.style.display = 'block';
+        modal.style.display = 'active';
+        adminAuth.style.display = 'active';
         uploadForm.style.display = 'none';
         authError.style.display = 'none';
         // Reset the admin code input
