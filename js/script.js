@@ -38,9 +38,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalImg = document.getElementById("modalImage");
     const closeModal = document.getElementById("closeModal");
 
+    if (!modal || !modalImg || !closeModal) {
+        console.error("Modal elements not found. Check your HTML structure.");
+        return;
+    }
+
     // Select all portfolio images
     document.querySelectorAll(".portfolio__grid img").forEach(img => {
         img.addEventListener("click", function () {
+            console.log("Image clicked:", this.src); // Debugging
             modal.style.display = "flex";
             modalImg.src = this.src;
         });
@@ -65,3 +71,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
