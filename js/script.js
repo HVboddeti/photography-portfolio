@@ -33,53 +33,59 @@ document.getElementById("contact-form").addEventListener("submit", async functio
     this.submit();
 });
 
-/// Wait for the DOM to be fully loaded
+// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Admin code (in real implementation, this should be handled securely on the server)
+    // Constants
     const ADMIN_CODE = '1234';
 
-    // Get DOM elements
+    // DOM Elements
     const modal = document.getElementById('uploadModal');
-    const addButton = document.querySelector('.add-button');
-    const closeButton = document.querySelector('.close-button');
+    const addButton = document.getElementById('addButton');
+    const closeButton = document.getElementById('closeButton');
     const adminAuth = document.getElementById('adminAuth');
     const uploadForm = document.getElementById('uploadForm');
     const authError = document.getElementById('authError');
 
-    // Make sure elements are found
+    // Verify all elements are found
     if (!modal || !addButton || !closeButton || !adminAuth || !uploadForm || !authError) {
-        console.error('One or more elements not found');
+        console.error('Required elements not found. Check your HTML IDs.');
         return;
     }
 
-    // Add Button Click Event
-    addButton.addEventListener('click', function() {
-        console.log('Add button clicked'); // Debug log
-        modal.style.display = 'active';
-        adminAuth.style.display = 'active';
+    // Event Listeners
+    addButton.addEventListener('click', showModal);
+    closeButton.addEventListener('click', hideModal);
+    window.addEventListener('click', handleOutsideClick);
+
+    // Show Modal Function
+    function showModal() {
+        modal.style.display = 'block';
+        adminAuth.style.display = 'block';
         uploadForm.style.display = 'none';
         authError.style.display = 'none';
-        // Reset the admin code input
+        // Reset form
         document.getElementById('adminCode').value = '';
-    });
+    }
 
-    // Close Button Click Event
-    closeButton.addEventListener('click', function() {
-        console.log('Close button clicked'); // Debug log
+    // Hide Modal Function
+    function hideModal() {
         modal.style.display = 'none';
-    });
+        // Reset forms
+        document.getElementById('adminCode').value = '';
+        document.getElementById('imageUpload').value = '';
+        document.getElementById('imageTitle').value = '';
+    }
 
-    // Click Outside Modal to Close
-    window.addEventListener('click', function(event) {
+    // Handle Outside Click
+    function handleOutsideClick(event) {
         if (event.target === modal) {
-            modal.style.display = 'none';
+            hideModal();
         }
-    });
+    }
 
-    // Admin Verification
+    // Make functions global for onclick handlers
     window.verifyAdmin = function() {
         const adminCode = document.getElementById('adminCode').value;
-        console.log('Verifying admin code'); // Debug log
         
         if (adminCode === ADMIN_CODE) {
             adminAuth.style.display = 'none';
@@ -87,11 +93,14 @@ document.addEventListener('DOMContentLoaded', function() {
             authError.style.display = 'none';
         } else {
             authError.style.display = 'block';
-            authError.textContent = 'Only Admin can use this.';
+            // Shake animation for error message
+            authError.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                authError.style.animation = '';
+            }, 500);
         }
     };
 
-    // Image Upload
     window.uploadImage = function() {
         const section = document.getElementById('section').value;
         const imageFile = document.getElementById('imageUpload').files[0];
@@ -102,21 +111,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Create FormData for upload
         const formData = new FormData();
         formData.append('image', imageFile);
         formData.append('title', imageTitle);
         formData.append('section', section);
 
-        // For demonstration purposes
-        console.log('Uploading to section:', section);
-        console.log('File:', imageFile.name);
-        console.log('Title:', imageTitle);
+        // Here you would typically send the formData to your server
+        // For demonstration, we'll just show an alert
+        alert(`Image "${imageTitle}" would be uploaded to ${section} section`);
         
-        alert('Upload simulation complete!');
-        modal.style.display = 'none';
-        
-        // Reset form
-        document.getElementById('imageUpload').value = '';
-        document.getElementById('imageTitle').value = '';
+        // Reset and close modal
+        hideModal();
     };
 });

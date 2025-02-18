@@ -503,10 +503,12 @@ nav {
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     transition: transform 0.3s ease;
+    z-index: 999;
 }
 
 .add-button:hover {
     transform: scale(1.1);
+    background-color: #45a049;
 }
 
 /* Modal Styles */
@@ -533,11 +535,16 @@ nav {
 
 .close-button {
     position: absolute;
-    top: 10px;
     right: 10px;
-    font-size: 24px;
+    top: 10px;
     cursor: pointer;
+    font-size: 24px;
     color: #666;
+    transition: color 0.3s ease;
+}
+
+.close-button:hover {
+    color: #333;
 }
 
 /* Form Styles */
@@ -549,6 +556,7 @@ nav {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    color: #333;
 }
 
 .form-group input,
@@ -557,24 +565,45 @@ nav {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    font-size: 14px;
 }
 
-.submit-button {
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+}
+
+/* Button Styles */
+.verify-button,
+.upload-button {
     background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
 }
 
-.submit-button:hover {
+.verify-button:hover,
+.upload-button:hover {
     background-color: #45a049;
 }
 
+/* Error Message */
 .error-message {
-    color: red;
+    color: #ff0000;
     margin-top: 10px;
     display: none;
+    font-size: 14px;
 }
-  
+
+/* Modal Title */
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 20px;
+}

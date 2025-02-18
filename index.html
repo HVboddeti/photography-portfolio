@@ -155,13 +155,13 @@
         </div>
       </div>
 
-       <!-- Add Button -->
-    <button class="add-button">+</button>
+      <!-- Add Button -->
+    <button class="add-button" id="addButton">+</button>
 
     <!-- Modal -->
     <div class="modal" id="uploadModal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
+            <span class="close-button" id="closeButton">&times;</span>
             <h2>Admin Upload</h2>
             
             <!-- Admin Authentication Form -->
@@ -170,11 +170,11 @@
                     <label for="adminCode">Admin Code:</label>
                     <input type="password" id="adminCode" required>
                 </div>
-                <button class="submit-button" onclick="verifyAdmin()">Verify</button>
+                <button class="verify-button" onclick="verifyAdmin()">Verify</button>
                 <p class="error-message" id="authError">Only Admin can use this.</p>
             </div>
 
-            <!-- Upload Form (initially hidden) -->
+            <!-- Upload Form -->
             <div id="uploadForm" style="display: none;">
                 <div class="form-group">
                     <label for="section">Select Section:</label>
@@ -191,7 +191,7 @@
                     <label for="imageTitle">Image Title:</label>
                     <input type="text" id="imageTitle" required>
                 </div>
-                <button class="submit-button" onclick="uploadImage()">Upload</button>
+                <button class="upload-button" onclick="uploadImage()">Upload</button>
             </div>
         </div>
     </div>
