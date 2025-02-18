@@ -488,87 +488,93 @@ nav {
   }
 }
 
-/* Ensure upload form is completely hidden initially */
-.upload-form {
-    visibility: hidden;  /* Hides the form */
-    opacity: 0;  /* Makes it fully transparent */
+/* Add Button Styles */
+.add-button {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--extra-light);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-  }
-  
-  /* Show form when active */
-  .upload-form.active {
-    visibility: visible; /* Makes it visible */
-    opacity: 1; /* Fully visible */
-  }
-  
-  /* Floating Plus Button */
-  .floating-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background-color: var(--text-dark);
-    color: var(--white);
-    font-size: 24px;
+    background-color: #4CAF50;
+    color: white;
     border: none;
+    font-size: 24px;
     cursor: pointer;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-    transition: background 0.3s;
-  }
-  
-  .floating-btn:hover {
-    background-color: var(--text-light);
-  }
-  
-  
-  /* Upload Form Styling */
-  .upload-form {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+.add-button:hover {
+    transform: scale(1.1);
+}
+
+/* Modal Styles */
+.modal {
     display: none;
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--extra-light);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-    z-index: 1000; /* Ensures it appears above everything */
-  }
-  
-  .upload-content {
-    text-align: center;
-  }
-  
-  .upload-content input,
-  .upload-content select {
+    top: 0;
+    left: 0;
     width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid var(--text-light);
-  }
-  
-  .upload-content button {
-    padding: 10px 20px;
-    margin: 5px;
-    cursor: pointer;
-    border: none;
-    background-color: var(--text-dark);
-    color: var(--white);
-  }
-  
-  .upload-content button:hover {
-    background-color: var(--text-light);
-  }
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
 
+.modal-content {
+    position: relative;
+    background-color: white;
+    max-width: 500px;
+    margin: 100px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.submit-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #45a049;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+    display: none;
+}
   
