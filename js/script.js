@@ -1,15 +1,75 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const form = document.getElementById("contact-form");
-    const status = document.getElementById("form-status");
+const menuBtn = document.getElementById("menu-btn");
+const navLinks = document.getElementById("nav-links");
+const menuBtnIcon = menuBtn.querySelector("i");
 
-    form.addEventListener("submit", function(event) {
-        event.preventDefault();
-        status.textContent = "Message sent successfully!";
-        status.style.color = "lightgreen";
+menuBtn.addEventListener("click", (e) => {
+  navLinks.classList.toggle("open");
 
-        // Reset form
-        form.reset();
-    });
+  const isOpen = navLinks.classList.contains("open");
+  menuBtnIcon.setAttribute(
+    "class",
+    isOpen ? "ri-close-line" : "ri-menu-3-line"
+  );
+});
+
+navLinks.addEventListener("click", (e) => {
+  navLinks.classList.remove("open");
+  menuBtnIcon.setAttribute("class", "ri-menu-3-line");
+});
+
+const scrollRevealOption = {
+  distance: "50px",
+  origin: "bottom",
+  duration: 1000,
+};
+
+ScrollReveal().reveal(".header__image img", {
+  ...scrollRevealOption,
+  origin: "right",
+});
+ScrollReveal().reveal(".header__content h1", {
+  ...scrollRevealOption,
+  delay: 500,
+});
+ScrollReveal().reveal(".header__content h2", {
+  ...scrollRevealOption,
+  delay: 1000,
+});
+ScrollReveal().reveal(".header__btn", {
+  ...scrollRevealOption,
+  delay: 1500,
+});
+
+ScrollReveal().reveal(".about__image img", {
+  ...scrollRevealOption,
+  origin: "left",
+});
+ScrollReveal().reveal(".about__content .section__header", {
+  ...scrollRevealOption,
+  delay: 500,
+});
+ScrollReveal().reveal(".about__content p", {
+  ...scrollRevealOption,
+  delay: 1000,
+  interval: 500,
+});
+ScrollReveal().reveal(".about__btn", {
+  ...scrollRevealOption,
+  delay: 2000,
+});
+
+ScrollReveal().reveal(".blog__card", {
+  duration: 1000,
+  interval: 500,
+});
+
+ScrollReveal().reveal(".blog__btn", {
+  ...scrollRevealOption,
+  delay: 2000,
+});
+
+ScrollReveal().reveal(".contact__image img", {
+  ...scrollRevealOption,
 });
 
 
@@ -33,42 +93,4 @@ document.getElementById("contact-form").addEventListener("submit", async functio
     this.submit();
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-    const modal = document.getElementById("imageModal");
-    const modalImg = document.getElementById("modalImage");
-    const closeModal = document.getElementById("closeModal");
-
-    if (!modal || !modalImg || !closeModal) {
-        console.error("Modal elements not found. Check your HTML structure.");
-        return;
-    }
-
-    // Select all portfolio images
-    document.querySelectorAll(".portfolio__grid img").forEach(img => {
-        img.addEventListener("click", function () {
-            console.log("Image clicked:", this.src); // Debugging
-            modal.style.display = "flex";
-            modalImg.src = this.src;
-        });
-    });
-
-    // Close modal when clicking close button
-    closeModal.addEventListener("click", function () {
-        modal.style.display = "none";
-    });
-
-    // Close modal when clicking outside the image
-    modal.addEventListener("click", function (e) {
-        if (e.target === modal) {
-            modal.style.display = "none";
-        }
-    });
-
-    // Close modal when pressing ESC key
-    document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") {
-            modal.style.display = "none";
-        }
-    });
-});
 
