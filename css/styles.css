@@ -514,23 +514,26 @@ nav {
   }
   
   .image-modal img {
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 90vw;  /* Limit width to 90% of viewport width */
+    max-height: 90vh; /* Limit height to 90% of viewport height */
     border-radius: 10px;
     transition: transform 0.3s ease-in-out;
-  }
+    object-fit: contain; /* Ensures the image fits within modal without cropping */
+}
   
   .image-modal img:hover {
     transform: scale(1.02);
   }
   
-  /* Close Button */
-  .close-modal {
+ /* Close Button */
+.close-modal {
     position: absolute;
     top: 20px;
     right: 40px;
     font-size: 30px;
     color: white;
     cursor: pointer;
-  }
-  
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
