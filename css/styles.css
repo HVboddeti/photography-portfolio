@@ -98,8 +98,8 @@ nav {
 }
 
 .nav__logo img {
-  max-width: 15px;
-}
+    max-width: 50px; /* Adjust size as needed */
+    height: auto;
 
 .nav__menu__btn {
   font-size: 1.5rem;
