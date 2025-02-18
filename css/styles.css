@@ -607,3 +607,26 @@ nav {
     color: #333;
     font-size: 20px;
 }
+
+/* Uploaded Image Styling */
+.uploaded-image {
+    width: 100%;
+    max-width: 350px;
+    border-radius: 10px;
+    margin-top: 10px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .uploaded-image:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Animation for Wrong Admin Code */
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+  
