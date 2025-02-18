@@ -34,19 +34,26 @@ document.getElementById("contact-form").addEventListener("submit", async functio
 });
 
 
-// Get elements
-const addImageBtn = document.getElementById("addImageBtn");
-const uploadForm = document.getElementById("uploadForm");
-
-// Show the upload form when clicking the plus button
-addImageBtn.addEventListener("click", function () {
-  uploadForm.classList.add("active");
-});
-
-// Hide the form when clicking Cancel
-function closeForm() {
-  uploadForm.classList.remove("active");
-}
+// Ensure script runs only when DOM is fully loaded
+document.addEventListener("DOMContentLoaded", function () {
+    const addImageBtn = document.getElementById("addImageBtn");
+    const uploadForm = document.getElementById("uploadForm");
+  
+    // Show the upload form when clicking the plus button
+    addImageBtn.addEventListener("click", function () {
+      console.log("Add Image Button Clicked"); // Debugging log
+      uploadForm.style.display = "block"; // Ensure it becomes visible
+      uploadForm.classList.add("active");
+    });
+  
+    // Hide the form when clicking Cancel
+    window.closeForm = function () {
+      console.log("Close Form Clicked"); // Debugging log
+      uploadForm.style.display = "none"; // Hide form
+      uploadForm.classList.remove("active");
+    };
+  
+  
   
   function uploadImage() {
     const adminCode = document.getElementById("adminCode").value;
@@ -87,4 +94,5 @@ function closeForm() {
   
     reader.readAsDataURL(file);
   }
+});
   
