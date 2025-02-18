@@ -34,14 +34,19 @@ document.getElementById("contact-form").addEventListener("submit", async functio
 });
 
 
-document.getElementById("addImageBtn").addEventListener("click", function () {
-    document.getElementById("uploadForm").classList.add("active");
-  });
-  
-  function closeForm() {
-    document.getElementById("uploadForm").classList.remove("active");
-  }
-  
+// Get elements
+const addImageBtn = document.getElementById("addImageBtn");
+const uploadForm = document.getElementById("uploadForm");
+
+// Show the upload form when clicking the plus button
+addImageBtn.addEventListener("click", function () {
+  uploadForm.classList.add("active");
+});
+
+// Hide the form when clicking Cancel
+function closeForm() {
+  uploadForm.classList.remove("active");
+}
   
   function uploadImage() {
     const adminCode = document.getElementById("adminCode").value;

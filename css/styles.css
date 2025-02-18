@@ -488,8 +488,30 @@ nav {
   }
 }
 
-/* Floating Plus Button */
-.floating-btn {
+/* Ensure upload form is completely hidden initially */
+.upload-form {
+    visibility: hidden;  /* Hides the form */
+    opacity: 0;  /* Makes it fully transparent */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--extra-light);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  }
+  
+  /* Show form when active */
+  .upload-form.active {
+    visibility: visible; /* Makes it visible */
+    opacity: 1; /* Fully visible */
+  }
+  
+  /* Floating Plus Button */
+  .floating-btn {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -508,6 +530,7 @@ nav {
   .floating-btn:hover {
     background-color: var(--text-light);
   }
+  
   
   /* Upload Form Styling */
   .upload-form {
@@ -548,8 +571,4 @@ nav {
     background-color: var(--text-light);
   }
 
-  /* Add a slight blur effect to the background when form is open */
-.upload-form.active {
-    display: block;
-  }
   
