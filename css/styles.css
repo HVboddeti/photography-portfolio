@@ -489,3 +489,48 @@ nav {
   }
 }
 
+/* Portfolio Image Hover Effect */
+.portfolio__grid img {
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .portfolio__grid img:hover {
+    transform: scale(1.05); /* Slight zoom effect */
+  }
+  
+  /* Fullscreen Image Modal */
+  .image-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .image-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .image-modal img:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Close Button */
+  .close-modal {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+  }
+  
