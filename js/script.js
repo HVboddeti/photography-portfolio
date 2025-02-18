@@ -33,3 +33,35 @@ document.getElementById("contact-form").addEventListener("submit", async functio
     this.submit();
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImage");
+    const closeModal = document.getElementById("closeModal");
+
+    // Select all portfolio images
+    document.querySelectorAll(".portfolio__grid img").forEach(img => {
+        img.addEventListener("click", function () {
+            modal.style.display = "flex";
+            modalImg.src = this.src;
+        });
+    });
+
+    // Close modal when clicking close button
+    closeModal.addEventListener("click", function () {
+        modal.style.display = "none";
+    });
+
+    // Close modal when clicking outside the image
+    modal.addEventListener("click", function (e) {
+        if (e.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+
+    // Close modal when pressing ESC key
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+            modal.style.display = "none";
+        }
+    });
+});
