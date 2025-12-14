@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin.css">
+    <title>Admin Panel - Portfolio Management</title>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="login-section" class="login-container">
+        <div class="login-box">
+            <h1>🔐 Admin Login</h1>
+            <p>Enter your credentials to manage the portfolio</p>
+            <form id="login-form">
+                <input type="password" id="admin-password" placeholder="Enter Admin Password" required>
+                <button type="submit" class="btn">Login</button>
+                <p id="login-error" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="admin-dashboard hidden">
+        <nav class="admin-nav">
+            <div class="admin-logo">
+                <h2>📸 Portfolio Admin</h2>
+            </div>
+            <button id="logout-btn" class="btn-secondary">Logout</button>
+        </nav>
+
+        <div class="admin-container">
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="portfolio">Portfolio Images</button>
+                <button class="tab-btn" data-tab="site-info">Site Information</button>
+                <button class="tab-btn" data-tab="contact">Contact & Footer</button>
+            </div>
+
+            <!-- Portfolio Tab -->
+            <div id="portfolio-tab" class="tab-content active">
+                <div class="section-header">
+                    <h2>Manage Portfolio</h2>
+                    <button id="add-category-btn" class="btn">+ Add Category</button>
+                </div>
+
+                <div id="categories-container"></div>
+
+                <!-- Add Category Modal -->
+                <div id="category-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+                        <h3>Add New Category</h3>
+                        <input type="text" id="new-category-id" placeholder="Category ID (e.g., 'portraits')">
+                        <input type="text" id="new-category-title" placeholder="Category Title (e.g., 'Beautiful Portraits')">
+                        <button id="save-category-btn" class="btn">Save Category</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Site Info Tab -->
+            <div id="site-info-tab" class="tab-content">
+                <h2>Site Information</h2>
+                <form id="site-info-form" class="info-form">
+                    <div class="form-group">
+                        <label>Page Title</label>
+                        <input type="text" id="site-title" name="title">
+                    </div>
+                    <div class="form-group">
+                        <label>Photographer Name</label>
+                        <input type="text" id="site-photographer" name="photographer">
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="site-location" name="location">
+                    </div>
+                    <div class="form-group">
+                        <label>Tagline</label>
+                        <input type="text" id="site-tagline" name="tagline">
+                    </div>
+                    <div class="form-group">
+                        <label>About Description</label>
+                        <textarea id="site-description" name="description" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Mission Statement</label>
+                        <textarea id="site-mission" name="mission" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Save Changes</button>
+                </form>
+            </div>
+
+            <!-- Contact Tab -->
+            <div id="contact-tab" class="tab-content">
+                <h2>Contact & Footer</h2>
+                <form id="contact-form-info" class="info-form">
+                    <h3>Contact Section</h3>
+                    <div class="form-group">
+                        <label>Contact Description 1</label>
+                        <textarea id="contact-desc1" name="description1" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Description 2</label>
+                        <textarea id="contact-desc2" name="description2" rows="3"></textarea>
+                    </div>
+
+                    <h3>Footer</h3>
+                    <div class="form-group">
+                        <label>Get In Touch Text</label>
+                        <textarea id="footer-touch" name="getInTouch" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Copyright Text</label>
+                        <input type="text" id="footer-copyright" name="copyright">
+                    </div>
+
+                    <h3>Social Links</h3>
+                    <div id="social-links-editor"></div>
+                    <button type="button" id="add-social-btn" class="btn-secondary">+ Add Social Link</button>
+
+                    <button type="submit" class="btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Save Notification -->
+        <div id="save-notification" class="notification hidden">
+            <p id="notification-message"></p>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
