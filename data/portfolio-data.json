@@ -1,0 +1,106 @@
+{
+  "siteInfo": {
+    "title": "Harsha's Bluehour | Photography",
+    "photographer": "Harsha Boddeti",
+    "location": "VA, USA",
+    "tagline": "Photographer & Film Maker",
+    "description": "Hi, I'm Harsha Boddeti, a passionate Photographer and Videographer dedicated to capturing life's most beautiful moments. Through my lens, I transform emotions, stories, and experiences into timeless visuals.",
+    "mission": "Whether it's the raw essence of a candid shot or the artistry of a cinematic frame, I strive to bring creativity and authenticity to every project. Let's create something unforgettable together."
+  },
+  "portfolioCategories": [
+    {
+      "id": "nature",
+      "title": "Whispers of Nature",
+      "images": [
+        "assets/nat1.jpg",
+        "assets/nat3.jpg",
+        "assets/nat2.jpg",
+        "assets/nat4.jpg",
+        "assets/nat13.png",
+        "assets/nat15.jpg",
+        "assets/nat19.heic",
+        "assets/nat21.jpg",
+        "assets/nat22.jpg",
+        "assets/nat23.jpg",
+        "assets/nat25.jpg",
+        "assets/nat5.jpg",
+        "assets/nat6.jpg",
+        "assets/nat7.jpg",
+        "assets/nat8.jpg",
+        "assets/nat16.JPG",
+        "assets/nat18.jpg",
+        "assets/nat24.jpg",
+        "assets/nat26.jpg",
+        "assets/nat27.heic",
+        "assets/nat32.jpg",
+        "assets/nat9.png",
+        "assets/nat10.png",
+        "assets/nat11.png",
+        "assets/nat12.png",
+        "assets/nat14.jpg",
+        "assets/nat17.heic",
+        "assets/nat20.JPG",
+        "assets/nat29.heic",
+        "assets/nat30.heic",
+        "assets/nat31.heic",
+        "assets/nat28.jpg"
+      ]
+    },
+    {
+      "id": "candid",
+      "title": "Faces of Emotions",
+      "images": [
+        "assets/candid/cd1.JPEG",
+        "assets/candid/cd12.JPG",
+        "assets/candid/cd2.JPEG",
+        "assets/candid/cd13.jpg",
+        "assets/candid/cd3.jpg",
+        "assets/candid/cd21.jpg",
+        "assets/candid/cd22.jpg",
+        "assets/candid/cd23.jpg",
+        "assets/candid/cd27.jpg",
+        "assets/candid/cd28.JPG",
+        "assets/candid/cd4.jpg",
+        "assets/candid/cd14.jpg",
+        "assets/candid/cd5.jpg",
+        "assets/candid/cd15.jpg",
+        "assets/candid/cd6.jpg",
+        "assets/candid/cd11.jpg",
+        "assets/candid/cd25.jpg",
+        "assets/candid/cd26.jpg",
+        "assets/candid/cd24.jpg",
+        "assets/candid/cd16.jpg",
+        "assets/candid/cd17.jpg",
+        "assets/candid/cd7.jpg",
+        "assets/candid/cd8.jpg",
+        "assets/candid/cd18.jpg",
+        "assets/candid/cd9.jpg",
+        "assets/candid/cd19.jpg",
+        "assets/candid/cd10.jpg",
+        "assets/candid/cd29.JPG",
+        "assets/candid/cd20.jpg"
+      ]
+    }
+  ],
+  "contact": {
+    "heading": "Contact Me",
+    "description1": "Have a vision that needs to be captured through stunning photography or cinematic storytelling? Let's bring your ideas to life with creativity and passion.",
+    "description2": "Whether it's a special event, a creative project, or a visual story waiting to be told, I'd love to collaborate with you!"
+  },
+  "footer": {
+    "getInTouch": "Reach out for inquiries, collaborations, or just to say hello—I'd love to connect with you.",
+    "socialLinks": [
+      {
+        "platform": "facebook",
+        "icon": "ri-facebook-fill",
+        "url": "https://www.facebook.com/profile.php?id=100005390134754"
+      },
+      {
+        "platform": "instagram",
+        "icon": "ri-instagram-line",
+        "url": "https://www.instagram.com/lifeof_harsha/"
+      }
+    ],
+    "copyright": "Copyright © 2024 Harsha's Bluehour Photography. All rights reserved."
+  }
+}
