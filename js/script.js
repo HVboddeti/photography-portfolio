@@ -1,6 +1,14 @@
 // Dynamic Content Loading
 let portfolioData = null;
 
+// Filter out unsupported image formats (HEIC not supported in browsers)
+function filterSupportedImages(images) {
+    return images.filter(img => {
+        const ext = img.toLowerCase().split('.').pop();
+        return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext);
+    });
+}
+
 // Load portfolio data from JSON
 async function loadPortfolioData() {
     try {
@@ -9,6 +17,14 @@ async function loadPortfolioData() {
             throw new Error('Failed to load portfolio data');
         }
         portfolioData = await response.json();
+        
+        // Filter out unsupported image formats from all categories
+        if (portfolioData && portfolioData.portfolioCategories) {
+            portfolioData.portfolioCategories.forEach(category => {
+                category.images = filterSupportedImages(category.images);
+            });
+        }
+        
         return portfolioData;
     } catch (error) {
         console.error('Error loading portfolio data:', error);
@@ -116,6 +132,13 @@ function showCategoryImages(category, categoryIndex) {
             img.src = category.images[j];
             img.alt = category.title;
             img.loading = 'lazy';
+            
+            // Add error handler for images that fail to load
+            img.onerror = function() {
+                console.warn('Failed to load image:', this.src);
+                this.style.display = 'none'; // Hide broken images
+            };
+            
             // Use closure to capture the correct index and images array
             (function(imageSrc, imagesArray, imageIndex) {
                 img.addEventListener('click', function() {
@@ -213,6 +236,14 @@ function openImageModal(imageSrc, imagesArray, index) {
 
     modal.style.display = "flex";
     modalImg.src = imageSrc;
+    
+    // Add error handler for modal images
+    modalImg.onerror = function() {
+        console.warn('Failed to load modal image:', this.src);
+        closeImageModal();
+        alert('Sorry, this image could not be loaded.');
+    };
+    
     document.body.style.overflow = "hidden"; // Prevent background scrolling
 }
 
