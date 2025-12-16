@@ -115,6 +115,11 @@ function showCategoryImages(category, categoryIndex) {
             img.src = category.images[j];
             img.alt = category.title;
             img.loading = 'lazy';
+            img.dataset.imageIndex = j; // Store index for modal navigation
+            img.dataset.categoryImages = JSON.stringify(category.images); // Store all category images
+            img.addEventListener('click', function() {
+                openImageModal(this.src, category.images, j);
+            });
             column.appendChild(img);
         }
         
@@ -185,44 +190,116 @@ function renderSocialLinks(data) {
     });
 }
 
-// Initialize image modal
-function initializeImageModal() {
+// Image modal state
+let currentModalImages = [];
+let currentModalIndex = 0;
+let touchStartX = 0;
+let touchEndX = 0;
+
+// Open image modal
+function openImageModal(imageSrc, imagesArray, index) {
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImage");
-    const closeModal = document.getElementById("closeModal");
 
-    if (!modal || !modalImg || !closeModal) {
-        console.error("Modal elements not found. Check your HTML structure.");
+    if (!modal || !modalImg) {
+        console.error("Modal elements not found");
         return;
     }
 
-    // Select all portfolio images
-    document.querySelectorAll(".portfolio__grid img").forEach(img => {
-        img.addEventListener("click", function () {
-            console.log("Image clicked:", this.src);
-            modal.style.display = "flex";
-            modalImg.src = this.src;
-        });
-    });
+    currentModalImages = imagesArray;
+    currentModalIndex = index;
+
+    modal.style.display = "flex";
+    modalImg.src = imageSrc;
+    document.body.style.overflow = "hidden"; // Prevent background scrolling
+}
+
+// Close image modal
+function closeImageModal() {
+    const modal = document.getElementById("imageModal");
+    if (modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = ""; // Restore scrolling
+    }
+}
+
+// Navigate modal images
+function navigateModal(direction) {
+    if (currentModalImages.length === 0) return;
+
+    if (direction === 'next') {
+        currentModalIndex = (currentModalIndex + 1) % currentModalImages.length;
+    } else if (direction === 'prev') {
+        currentModalIndex = (currentModalIndex - 1 + currentModalImages.length) % currentModalImages.length;
+    }
+
+    const modalImg = document.getElementById("modalImage");
+    if (modalImg) {
+        modalImg.src = currentModalImages[currentModalIndex];
+    }
+}
+
+// Handle swipe gestures
+function handleTouchStart(e) {
+    touchStartX = e.changedTouches[0].screenX;
+}
+
+function handleTouchEnd(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}
+
+function handleSwipe() {
+    const swipeThreshold = 50; // Minimum distance for swipe
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // Swiped left - show next image
+            navigateModal('next');
+        } else {
+            // Swiped right - show previous image
+            navigateModal('prev');
+        }
+    }
+}
+
+// Initialize image modal
+function initializeImageModal() {
+    const modal = document.getElementById("imageModal");
+    const closeModal = document.getElementById("closeModal");
+
+    if (!modal || !closeModal) {
+        console.error("Modal elements not found");
+        return;
+    }
 
     // Close modal when clicking close button
-    closeModal.addEventListener("click", function () {
-        modal.style.display = "none";
-    });
+    closeModal.addEventListener("click", closeImageModal);
 
     // Close modal when clicking outside the image
     modal.addEventListener("click", function (e) {
         if (e.target === modal) {
-            modal.style.display = "none";
+            closeImageModal();
         }
     });
 
-    // Close modal when pressing ESC key
+    // Keyboard navigation
     document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") {
-            modal.style.display = "none";
+        if (modal.style.display === "flex") {
+            if (e.key === "Escape") {
+                closeImageModal();
+            } else if (e.key === "ArrowLeft") {
+                navigateModal('prev');
+            } else if (e.key === "ArrowRight") {
+                navigateModal('next');
+            }
         }
     });
+
+    // Touch/swipe navigation
+    modal.addEventListener("touchstart", handleTouchStart, false);
+    modal.addEventListener("touchend", handleTouchEnd, false);
 }
 
 // Contact Form Handler

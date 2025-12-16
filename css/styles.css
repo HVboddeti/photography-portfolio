@@ -726,10 +726,28 @@ nav {
     position: absolute;
     top: 20px;
     right: 40px;
-    font-size: 30px;
+    font-size: 40px;
     color: white;
     cursor: pointer;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 5px 10px;
-    border-radius: 5px;
+    background: transparent; /* Transparent background as requested */
+    border: none;
+    padding: 10px;
+    line-height: 1;
+    z-index: 1001;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.close-modal:hover {
+    transform: scale(1.2);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* Mobile adjustments for close button */
+@media (max-width: 768px) {
+    .close-modal {
+        top: 15px;
+        right: 20px;
+        font-size: 35px;
+    }
 }
