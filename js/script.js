@@ -132,87 +132,99 @@ function renderPortfolio(data) {
 
 // Show all images from a category in 3-column grid
 function showCategoryImages(category, categoryIndex) {
-    const portfolioContent = document.getElementById('portfolio-content');
-    if (!portfolioContent) return;
+    try {
+        const portfolioContent = document.getElementById('portfolio-content');
+        if (!portfolioContent) return;
 
-    portfolioContent.innerHTML = '';
-    portfolioContent.style.display = 'block'; // Change from grid to block for detail view
+        portfolioContent.innerHTML = '';
+        portfolioContent.style.display = 'block'; // Change from grid to block for detail view
 
-    // Add back button
-    const backBtn = document.createElement('button');
-    backBtn.className = 'portfolio__back-btn';
-    backBtn.innerHTML = '<i class="ri-arrow-left-line"></i> Back to Categories';
-    backBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        renderPortfolio(portfolioData);
-    });
-    
-    const header = document.createElement('div');
-    header.className = 'portfolio__detail-header';
-    header.appendChild(backBtn);
-    
-    const titleEl = document.createElement('h2');
-    titleEl.className = 'portfolio__detail-title';
-    titleEl.textContent = category.title;
-    header.appendChild(titleEl);
-
-    portfolioContent.appendChild(header);
-
-    // Create 3-column grid for images
-    const grid = document.createElement('div');
-    grid.className = 'portfolio__detail-grid';
-
-    // Split images into 3 columns
-    const imagesPerColumn = Math.ceil(category.images.length / 3);
-    
-    for (let i = 0; i < 3; i++) {
-        const column = document.createElement('div');
-        column.className = 'portfolio__detail-column';
-        const startIndex = i * imagesPerColumn;
-        const endIndex = Math.min(startIndex + imagesPerColumn, category.images.length);
+        // Add back button
+        const backBtn = document.createElement('button');
+        backBtn.className = 'portfolio__back-btn';
+        backBtn.innerHTML = '<i class="ri-arrow-left-line"></i> Back to Categories';
+        backBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            renderPortfolio(portfolioData);
+        });
         
-        for (let j = startIndex; j < endIndex; j++) {
-            const img = document.createElement('img');
-            const imageUrl = category.images[j];
+        const header = document.createElement('div');
+        header.className = 'portfolio__detail-header';
+        header.appendChild(backBtn);
+        
+        const titleEl = document.createElement('h2');
+        titleEl.className = 'portfolio__detail-title';
+        titleEl.textContent = category.title;
+        header.appendChild(titleEl);
+
+        portfolioContent.appendChild(header);
+
+        // Create 3-column grid for images
+        const grid = document.createElement('div');
+        grid.className = 'portfolio__detail-grid';
+
+        // Split images into 3 columns
+        const imagesPerColumn = Math.ceil(category.images.length / 3);
+        
+        for (let i = 0; i < 3; i++) {
+            const column = document.createElement('div');
+            column.className = 'portfolio__detail-column';
+            const startIndex = i * imagesPerColumn;
+            const endIndex = Math.min(startIndex + imagesPerColumn, category.images.length);
             
-            img.alt = category.title;
-            img.loading = 'lazy';
-            
-            // Set src immediately for non-HEIC, convert HEIC async
-            if (isHeicImage(imageUrl)) {
-                // Show placeholder or load async
-                img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3C/svg%3E';
-                convertHeicToJpg(imageUrl).then(convertedUrl => {
-                    img.src = convertedUrl;
-                }).catch(err => {
-                    console.warn('HEIC conversion failed:', err);
-                    img.style.display = 'none';
-                });
-            } else {
-                img.src = imageUrl;
+            for (let j = startIndex; j < endIndex; j++) {
+                try {
+                    const img = document.createElement('img');
+                    const imageUrl = category.images[j];
+                    
+                    img.alt = category.title;
+                    img.loading = 'lazy';
+                    
+                    // Set src immediately for non-HEIC, convert HEIC async
+                    if (isHeicImage(imageUrl)) {
+                        // Show placeholder or load async
+                        img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3C/svg%3E';
+                        convertHeicToJpg(imageUrl)
+                            .then(convertedUrl => {
+                                img.src = convertedUrl;
+                            })
+                            .catch(err => {
+                                console.warn('HEIC conversion failed:', imageUrl, err);
+                                img.style.display = 'none';
+                            });
+                    } else {
+                        img.src = imageUrl;
+                    }
+                    
+                    // Add error handler for images that fail to load
+                    img.onerror = function() {
+                        console.warn('Failed to load image:', this.src);
+                        this.style.display = 'none';
+                    };
+                    
+                    // Add click handler using closure
+                    (function(imgElement, imagesArray, imageIndex) {
+                        imgElement.addEventListener('click', function(e) {
+                            e.stopPropagation(); // Prevent event bubbling
+                            e.preventDefault();
+                            openImageModal(imgElement.src, imagesArray, imageIndex);
+                        });
+                    })(img, category.images, j);
+                    
+                    column.appendChild(img);
+                } catch (imgErr) {
+                    console.error('Error adding image to grid:', imgErr);
+                }
             }
             
-            // Add error handler for images that fail to load
-            img.onerror = function() {
-                console.warn('Failed to load image:', this.src);
-                this.style.display = 'none';
-            };
-            
-            // Add click handler using closure
-            (function(imgElement, imagesArray, imageIndex) {
-                imgElement.addEventListener('click', function(e) {
-                    e.stopPropagation(); // Prevent event bubbling
-                    openImageModal(imgElement.src, imagesArray, imageIndex);
-                });
-            })(img, category.images, j);
-            
-            column.appendChild(img);
+            grid.appendChild(column);
         }
-        
-        grid.appendChild(column);
-    }
 
-    portfolioContent.appendChild(grid);
+        portfolioContent.appendChild(grid);
+    } catch (error) {
+        console.error('Error showing category images:', error);
+    }
 }
 
 // Rotate images in a card every 3 seconds
@@ -496,37 +508,53 @@ async function sendWhatsAppMessage(name, email, message, status) {
             console.log("WhatsApp notification sent successfully.");
             status.textContent = "✅ Message sent successfully!";
             status.style.color = "green";
-        } else {
-            throw new Error("Failed to send WhatsApp message.");
+    try {
+        // Load dynamic content first
+        const data = await loadPortfolioData();
+        if (data) {
+            updateSiteInfo(data);
+            renderPortfolio(data);
+            renderSocialLinks(data);
+            
+            // Initialize modal after portfolio is rendered
+            initializeImageModal();
+        }
+        
+        // Initialize contact form
+        initializeContactForm();
+
+        // Hamburger menu functionality
+        const menuBtn = document.getElementById("menu-btn");
+        const navLinks = document.getElementById("nav-links");
+        
+        if (menuBtn && navLinks) {
+            menuBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                navLinks.classList.toggle("open");
+            });
+
+            // Close menu when clicking on a link
+            const links = navLinks.querySelectorAll("a");
+            links.forEach(link => {
+                link.addEventListener("click", () => {
+                    navLinks.classList.remove("open");
+                });
+            });
         }
     } catch (error) {
-        console.error("WhatsApp API Error:", error);
-        status.textContent = "⚠️ Failed to send message. Try again later.";
-        status.style.color = "red";
+        console.error('Error initializing portfolio:', error);
     }
-}
+});
 
-// Initialize everything when DOM is loaded
-document.addEventListener("DOMContentLoaded", async function () {
-    // Load dynamic content first
-    const data = await loadPortfolioData();
-    if (data) {
-        updateSiteInfo(data);
-        renderPortfolio(data);
-        renderSocialLinks(data);
-        
-        // Initialize modal after portfolio is rendered
-        initializeImageModal();
-    }
-    
-    // Initialize contact form
-    initializeContactForm();
+// Global error handler to prevent crashes
+window.addEventListener('error', function(event) {
+    console.error('Global error caught:', event.error);
+});
 
-    // Hamburger menu functionality
-    const menuBtn = document.getElementById("menu-btn");
-    const navLinks = document.getElementById("nav-links");
-    
-    if (menuBtn && navLinks) {
+// Handle unhandled promise rejections
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('Unhandled promise rejection:', event.reason);
+    event.preventDefault(); // Prevent crashingf (menuBtn && navLinks) {
         menuBtn.addEventListener("click", () => {
             navLinks.classList.toggle("open");
         });
