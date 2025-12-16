@@ -7,45 +7,58 @@ let cloudinaryCloudName = localStorage.getItem(CLOUDINARY_KEY) || '';
 let cloudinaryReady = false;
 let cloudinaryLoading = false;
 
-// Load Cloudinary Script
+// Load Cloudinary Script - waits for the widget to be available
 function loadCloudinaryScript() {
-    if (window.cloudinary) {
-        console.log('Cloudinary already loaded');
+    if (window.cloudinary && window.cloudinary.openUploadWidget) {
+        console.log('Cloudinary widget already available');
         cloudinaryReady = true;
         return Promise.resolve(true);
     }
 
     if (cloudinaryLoading) {
-        console.log('Cloudinary loading in progress, waiting...');
-        return new Promise(resolve => {
-            document.addEventListener('cloudinary:ready', () => resolve(true), { once: true });
+        console.log('Cloudinary already loading, waiting...');
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            const checkInterval = setInterval(() => {
+                attempts++;
+                if (window.cloudinary && window.cloudinary.openUploadWidget) {
+                    clearInterval(checkInterval);
+                    cloudinaryReady = true;
+                    cloudinaryLoading = false;
+                    console.log('Cloudinary widget became available');
+                    resolve(true);
+                } else if (attempts > 50) { // 5 second timeout
+                    clearInterval(checkInterval);
+                    cloudinaryLoading = false;
+                    console.error('Cloudinary widget timeout');
+                    reject(new Error('Cloudinary widget failed to load'));
+                }
+            }, 100);
         });
     }
 
     cloudinaryLoading = true;
-    console.log('Starting Cloudinary script load');
+    console.log('Waiting for Cloudinary widget to load from HTML script tag');
 
     return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.cloudinary.com/libs/cloudinary-core/2.11.0/cloudinary-core.min.js';
-        script.async = true;
-        script.defer = true;
-        
-        script.onload = () => {
-            console.log('Cloudinary script loaded successfully');
-            cloudinaryReady = true;
-            cloudinaryLoading = false;
-            document.dispatchEvent(new Event('cloudinary:ready'));
-            resolve(true);
-        };
-        
-        script.onerror = (err) => {
-            console.error('Cloudinary script load error:', err);
-            cloudinaryLoading = false;
-            reject(new Error('Failed to load Cloudinary script'));
-        };
-        
-        document.body.appendChild(script);
+        let attempts = 0;
+        const checkInterval = setInterval(() => {
+            attempts++;
+            console.log('Checking for Cloudinary widget... attempt', attempts);
+            
+            if (window.cloudinary && window.cloudinary.openUploadWidget) {
+                clearInterval(checkInterval);
+                cloudinaryReady = true;
+                cloudinaryLoading = false;
+                console.log('Cloudinary widget loaded successfully');
+                resolve(true);
+            } else if (attempts > 50) { // 5 second timeout
+                clearInterval(checkInterval);
+                cloudinaryLoading = false;
+                console.error('Cloudinary widget failed to load after timeout');
+                reject(new Error('Cloudinary widget not available'));
+            }
+        }, 100);
     });
 }
 
@@ -162,6 +175,7 @@ async function handleImageUpload(event, categoryIndex) {
     event.preventDefault();
     
     const cloudName = localStorage.getItem(CLOUDINARY_KEY) || cloudinaryCloudName;
+    console.log('Upload clicked. Cloud name:', cloudName);
     
     if (!cloudName) {
         showNotification('Please set your Cloudinary Cloud Name in the Settings tab first.', 'error');
@@ -170,26 +184,25 @@ async function handleImageUpload(event, categoryIndex) {
     }
     
     try {
+        console.log('Loading Cloudinary widget...');
         await loadCloudinaryScript();
+        console.log('Cloudinary widget loaded');
     } catch (err) {
-        showNotification('Cloudinary failed to load. Please refresh and try again.', 'error');
+        console.error('Cloudinary load failed:', err);
+        showNotification('Cloudinary widget failed to load. Please check your connection and try again.', 'error');
         return;
     }
 
-    if (typeof cloudinary === 'undefined') {
-        showNotification('Cloudinary is still loading. Please try again in a moment.', 'error');
+    if (!window.cloudinary || !window.cloudinary.openUploadWidget) {
+        console.error('cloudinary.openUploadWidget not available');
+        showNotification('Cloudinary upload widget is not available.', 'error');
         return;
     }
     
-    if (typeof cloudinary.openUploadWidget !== 'function') {
-        showNotification('Cloudinary widget is not ready. Please refresh and try again.', 'error');
-        return;
-    }
-    
-    console.log('Opening Cloudinary widget with cloud name:', cloudName);
+    console.log('Opening Cloudinary widget...');
     
     // Open Cloudinary upload widget
-    cloudinary.openUploadWidget({
+    window.cloudinary.openUploadWidget({
         cloudName: cloudName,
         uploadPreset: 'portfolio_present',
         multiple: true,
@@ -199,8 +212,10 @@ async function handleImageUpload(event, categoryIndex) {
         maxFileSize: 20000000,
         folder: 'portfolio'
     }, function(error, result) {
-        console.log('Upload result:', error, result);
+        console.log('Cloudinary result:', { error, event: result?.event });
+        
         if (!error && result && result.event === "queues-end") {
+            console.log('Upload complete. Files:', result.info.files.length);
             const uploadedUrls = result.info.files.map(file => file.uploadInfo.secure_url);
             
             if (uploadedUrls.length > 0) {
@@ -209,7 +224,8 @@ async function handleImageUpload(event, categoryIndex) {
                 showNotification(`${uploadedUrls.length} image(s) added! Click "Save All Changes" to persist.`, 'success');
             }
         } else if (error && error.status !== 'dismissed') {
-            showNotification('Upload failed: ' + error.message, 'error');
+            console.error('Upload error:', error);
+            showNotification('Upload failed: ' + (error.message || 'Unknown error'), 'error');
         }
     });
 }
