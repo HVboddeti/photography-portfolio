@@ -144,7 +144,7 @@ function handleImageUpload(event, categoryIndex) {
     // Open Cloudinary upload widget
     cloudinary.openUploadWidget({
         cloudName: cloudName,
-        uploadPreset: 'portfolio_preset',  // Ensure this preset exists in your Cloudinary account
+        uploadPreset: 'portfolio_present',  // Ensure this preset exists in your Cloudinary account
         multiple: true,  // Allow multiple file selection
         maxFiles: 20,    // Limit to 20 files at once
         resourceType: 'image',
