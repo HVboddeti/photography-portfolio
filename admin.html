@@ -36,6 +36,7 @@
                 <button class="tab-btn active" data-tab="portfolio">Portfolio Images</button>
                 <button class="tab-btn" data-tab="site-info">Site Information</button>
                 <button class="tab-btn" data-tab="contact">Contact & Footer</button>
+                <button class="tab-btn" data-tab="settings">Settings</button>
             </div>
 
             <!-- Portfolio Tab -->
@@ -120,6 +121,23 @@
                     <button type="button" id="add-social-btn" class="btn-secondary">+ Add Social Link</button>
 
                     <button type="submit" class="btn">Save Changes</button>
+                </form>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <h2>Settings</h2>
+                <form id="settings-form" class="info-form">
+                    <div class="form-group">
+                        <label>Cloudinary Cloud Name</label>
+                        <input type="text" id="cloudinary-cloud-name" placeholder="Enter your Cloudinary Cloud Name" required>
+                        <p class="help-text">Get this from your <a href="https://cloudinary.com/console" target="_blank">Cloudinary Dashboard</a></p>
+                    </div>
+                    <div class="form-group">
+                        <label>Admin Password</label>
+                        <input type="password" id="admin-password-setting" placeholder="Change admin password (optional)">
+                    </div>
+                    <button type="submit" class="btn">Save Settings</button>
                 </form>
             </div>
         </div>

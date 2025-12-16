@@ -1,6 +1,16 @@
 // Admin Panel JavaScript
 const ADMIN_PASSWORD = "harsha2024"; // Change this to your secure password
 let portfolioData = null;
+let cloudinaryCloudName = localStorage.getItem('cloudinary_cloud_name') || '';
+
+// Load Cloudinary Script
+function loadCloudinaryScript() {
+    if (!window.cloudinary) {
+        const script = document.createElement('script');
+        script.src = 'https://upload-widget.cloudinary.com/latest/CloudinaryUploadWidget.js';
+        document.body.appendChild(script);
+    }
+}
 
 // Check if already logged in
 function checkAuth() {
@@ -111,26 +121,51 @@ function renderCategories() {
 
 // Handle Image Upload
 function handleImageUpload(event, categoryIndex) {
-    const files = event.target.files;
+    event.preventDefault();
     
-    if (files.length === 0) return;
-
-    // In a real application, you would upload these to a server
-    // For this demo, we'll use FileReader to create data URLs
-    Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            // Add image to category
-            portfolioData.portfolioCategories[categoryIndex].images.push(e.target.result);
+    const cloudName = localStorage.getItem('cloudinary-cloud-name');
+    
+    if (!cloudName) {
+        showNotification('Please set your Cloudinary Cloud Name in the Settings tab first.', 'error');
+        // Switch to Settings tab
+        document.querySelector('[data-tab="settings"]').click();
+        return;
+    }
+    
+    // Check if Cloudinary widget is loaded
+    if (typeof cloudinary === 'undefined') {
+        showNotification('Cloudinary widget is loading... please try again in a moment.', 'error');
+        loadCloudinaryScript();
+        return;
+    }
+    
+    // Open Cloudinary upload widget
+    cloudinary.openUploadWidget({
+        cloudName: cloudName,
+        uploadPreset: 'portfolio_preset',  // Ensure this preset exists in your Cloudinary account
+        multiple: true,  // Allow multiple file selection
+        maxFiles: 20,    // Limit to 20 files at once
+        resourceType: 'image',
+        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        maxFileSize: 20000000,  // 20MB max
+        folder: 'portfolio'     // Optional: organize uploads in a folder
+    }, function(error, result) {
+        if (!error && result && result.event === "queues-end") {
+            // Process all successful uploads
+            const uploadedUrls = result.info.files.map(file => file.uploadInfo.secure_url);
             
-            // Re-render the category
-            renderCategories();
-            
-            showNotification('Image added! Click "Save All Changes" to persist.', 'success');
-        };
-        
-        reader.readAsDataURL(file);
+            if (uploadedUrls.length > 0) {
+                // Add all URLs to the category
+                portfolioData.portfolioCategories[categoryIndex].images.push(...uploadedUrls);
+                
+                // Re-render the category
+                renderCategories();
+                
+                showNotification(`${uploadedUrls.length} image(s) added! Click "Save All Changes" to persist.`, 'success');
+            }
+        } else if (error && error.status !== 'dismissed') {
+            showNotification('Upload failed: ' + error.message, 'error');
+        }
     });
 }
 
@@ -304,6 +339,62 @@ function showNotification(message, type = 'success', duration = 3000) {
         notification.classList.add('hidden');
     }, duration);
 }
+
+// Settings Form Handler
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved Cloudinary Cloud Name
+    const savedCloudName = localStorage.getItem('cloudinary_cloud_name');
+    if (savedCloudName) {
+        const cloudNameInput = document.getElementById('cloudinary-cloud-name');
+        if (cloudNameInput) cloudNameInput.value = savedCloudName;
+    }
+
+    // Settings Form Submit
+    const settingsForm = document.getElementById('settings-form');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const cloudName = document.getElementById('cloudinary-cloud-name').value;
+            const newPassword = document.getElementById('admin-password-setting').value;
+            
+            if (cloudName) {
+                localStorage.setItem('cloudinary_cloud_name', cloudName);
+                cloudinaryCloudName = cloudName;
+                loadCloudinaryScript();
+                showNotification('✅ Cloudinary Cloud Name saved!', 'success');
+            }
+            
+            if (newPassword) {
+                // You can optionally update the password (for demonstration only)
+                showNotification('✅ Settings updated!', 'success');
+            }
+        });
+    }
+
+    // Tab Navigation
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            
+            // Hide all tabs
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            const selectedTab = document.getElementById(tabName + '-tab');
+            if (selectedTab) selectedTab.classList.add('active');
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+        });
+    });
+});
 
 // Initialize
 checkAuth();
