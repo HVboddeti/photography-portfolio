@@ -209,6 +209,14 @@ document.querySelector('.close-modal').addEventListener('click', function() {
     document.getElementById('category-modal').classList.add('hidden');
 });
 
+// Save All Changes Button
+document.addEventListener('DOMContentLoaded', function() {
+    const saveAllBtn = document.getElementById('save-all-btn');
+    if (saveAllBtn) {
+        saveAllBtn.addEventListener('click', saveAllChanges);
+    }
+}, { once: true });
+
 document.getElementById('save-category-btn').addEventListener('click', function() {
     const id = document.getElementById('new-category-id').value.trim();
     const title = document.getElementById('new-category-title').value.trim();
