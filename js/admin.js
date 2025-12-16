@@ -10,31 +10,41 @@ let cloudinaryLoading = false;
 // Load Cloudinary Script
 function loadCloudinaryScript() {
     if (window.cloudinary) {
+        console.log('Cloudinary already loaded');
         cloudinaryReady = true;
         return Promise.resolve(true);
     }
 
     if (cloudinaryLoading) {
+        console.log('Cloudinary loading in progress, waiting...');
         return new Promise(resolve => {
             document.addEventListener('cloudinary:ready', () => resolve(true), { once: true });
         });
     }
 
     cloudinaryLoading = true;
+    console.log('Starting Cloudinary script load');
 
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
-        script.src = 'https://upload-widget.cloudinary.com/latest/CloudinaryUploadWidget.js';
+        script.src = 'https://cdn.cloudinary.com/libs/cloudinary-core/2.11.0/cloudinary-core.min.js';
+        script.async = true;
+        script.defer = true;
+        
         script.onload = () => {
+            console.log('Cloudinary script loaded successfully');
             cloudinaryReady = true;
             cloudinaryLoading = false;
             document.dispatchEvent(new Event('cloudinary:ready'));
             resolve(true);
         };
+        
         script.onerror = (err) => {
+            console.error('Cloudinary script load error:', err);
             cloudinaryLoading = false;
-            reject(err);
+            reject(new Error('Failed to load Cloudinary script'));
         };
+        
         document.body.appendChild(script);
     });
 }
@@ -171,19 +181,26 @@ async function handleImageUpload(event, categoryIndex) {
         return;
     }
     
+    if (typeof cloudinary.openUploadWidget !== 'function') {
+        showNotification('Cloudinary widget is not ready. Please refresh and try again.', 'error');
+        return;
+    }
+    
+    console.log('Opening Cloudinary widget with cloud name:', cloudName);
+    
     // Open Cloudinary upload widget
     cloudinary.openUploadWidget({
         cloudName: cloudName,
-        uploadPreset: 'portfolio_present',  // Ensure this preset exists in your Cloudinary account
-        multiple: true,  // Allow multiple file selection
-        maxFiles: 20,    // Limit to 20 files at once
+        uploadPreset: 'portfolio_present',
+        multiple: true,
+        maxFiles: 20,
         resourceType: 'image',
         clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        maxFileSize: 20000000,  // 20MB max
-        folder: 'portfolio'     // Optional: organize uploads in a folder
+        maxFileSize: 20000000,
+        folder: 'portfolio'
     }, function(error, result) {
+        console.log('Upload result:', error, result);
         if (!error && result && result.event === "queues-end") {
-            // Process all successful uploads
             const uploadedUrls = result.info.files.map(file => file.uploadInfo.secure_url);
             
             if (uploadedUrls.length > 0) {
