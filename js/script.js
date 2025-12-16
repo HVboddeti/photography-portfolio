@@ -22,6 +22,7 @@ function renderPortfolio(data) {
     if (!portfolioContent || !data.portfolioCategories) return;
 
     portfolioContent.innerHTML = '';
+    portfolioContent.style.display = ''; // Reset display to default grid
 
     data.portfolioCategories.forEach((category, index) => {
         const categoryCard = document.createElement('div');
@@ -76,7 +77,7 @@ function showCategoryImages(category, categoryIndex) {
     if (!portfolioContent) return;
 
     portfolioContent.innerHTML = '';
-    portfolioContent.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    portfolioContent.style.display = 'block'; // Change from grid to block for detail view
 
     // Add back button
     const backBtn = document.createElement('button');
