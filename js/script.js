@@ -142,7 +142,8 @@ function showCategoryImages(category, categoryIndex) {
     const backBtn = document.createElement('button');
     backBtn.className = 'portfolio__back-btn';
     backBtn.innerHTML = '<i class="ri-arrow-left-line"></i> Back to Categories';
-    backBtn.addEventListener('click', () => {
+    backBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         renderPortfolio(portfolioData);
     });
     
@@ -199,7 +200,8 @@ function showCategoryImages(category, categoryIndex) {
             
             // Add click handler using closure
             (function(imgElement, imagesArray, imageIndex) {
-                imgElement.addEventListener('click', function() {
+                imgElement.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event bubbling
                     openImageModal(imgElement.src, imagesArray, imageIndex);
                 });
             })(img, category.images, j);
@@ -368,7 +370,10 @@ function initializeImageModal() {
         return;
     }
 
-    // Close modal when clicking close button
+    // Close modal when clicking close bufunction(e) {
+        e.stopPropagation();
+        closeImageModal();
+    }
     closeModal.addEventListener("click", closeImageModal);
 
     // Navigation arrow buttons
