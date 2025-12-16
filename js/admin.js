@@ -1,7 +1,8 @@
 // Admin Panel JavaScript
 const ADMIN_PASSWORD = "harsha2024"; // Change this to your secure password
+const CLOUDINARY_KEY = 'cloudinary_cloud_name';
 let portfolioData = null;
-let cloudinaryCloudName = localStorage.getItem('cloudinary_cloud_name') || '';
+let cloudinaryCloudName = localStorage.getItem(CLOUDINARY_KEY) || '';
 
 // Load Cloudinary Script
 function loadCloudinaryScript() {
@@ -47,6 +48,7 @@ async function showDashboard() {
     document.getElementById('admin-dashboard').classList.remove('hidden');
     
     await loadData();
+    if (cloudinaryCloudName) loadCloudinaryScript();
     renderCategories();
     populateSiteInfo();
     populateContactInfo();
@@ -123,7 +125,7 @@ function renderCategories() {
 function handleImageUpload(event, categoryIndex) {
     event.preventDefault();
     
-    const cloudName = localStorage.getItem('cloudinary-cloud-name');
+    const cloudName = localStorage.getItem(CLOUDINARY_KEY) || cloudinaryCloudName;
     
     if (!cloudName) {
         showNotification('Please set your Cloudinary Cloud Name in the Settings tab first.', 'error');
@@ -343,10 +345,12 @@ function showNotification(message, type = 'success', duration = 3000) {
 // Settings Form Handler
 document.addEventListener('DOMContentLoaded', function() {
     // Load saved Cloudinary Cloud Name
-    const savedCloudName = localStorage.getItem('cloudinary_cloud_name');
+    const savedCloudName = localStorage.getItem(CLOUDINARY_KEY);
     if (savedCloudName) {
         const cloudNameInput = document.getElementById('cloudinary-cloud-name');
         if (cloudNameInput) cloudNameInput.value = savedCloudName;
+        cloudinaryCloudName = savedCloudName;
+        loadCloudinaryScript();
     }
 
     // Settings Form Submit
@@ -359,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const newPassword = document.getElementById('admin-password-setting').value;
             
             if (cloudName) {
-                localStorage.setItem('cloudinary_cloud_name', cloudName);
+                localStorage.setItem(CLOUDINARY_KEY, cloudName);
                 cloudinaryCloudName = cloudName;
                 loadCloudinaryScript();
                 showNotification('✅ Cloudinary Cloud Name saved!', 'success');
