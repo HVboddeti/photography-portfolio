@@ -135,8 +135,10 @@ nav {
 
 .header__container {
   display: grid;
+  grid-template-columns: 1fr;
   padding-block: 0;
   overflow: hidden;
+  gap: 2rem;
 }
 
 .header__content {
@@ -194,12 +196,14 @@ nav {
 .portfolio__grid {
   margin-top: 4rem;
   display: grid;
-  gap: 1rem;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .portfolio__grid > div {
   display: grid;
-  gap: 1rem;
+  gap: 0.5rem;
+  grid-template-columns: 1fr;
 }
 
 .blog__container .section__header {
@@ -326,12 +330,11 @@ nav {
   }
 
   .portfolio__grid {
-    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
 
-  .portfolio__grid > div:nth-child(3) {
-    grid-column: 1/3;
-    grid-template-columns: repeat(2, 1fr);
+  .portfolio__grid > div {
+    gap: 1rem;
   }
 
   .input__row {
@@ -366,6 +369,22 @@ nav {
 
   .nav__menu__btn {
     display: none;
+  }
+
+  .nav__links {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    flex-direction: row;
+    background-color: transparent;
+    gap: 3rem;
+    padding: 0;
+    z-index: auto;
+  }
+
+  .header__container {
+    grid-template-columns: 1fr 1fr;
   }
 
   .nav__links {
@@ -434,11 +453,6 @@ nav {
 
   .portfolio__grid {
     grid-template-columns: repeat(3, 1fr);
-  }
-
-  .portfolio__grid > div:nth-child(3) {
-    grid-column: unset;
-    grid-template-columns: 1fr;
   }
 
   .blog__grid {
