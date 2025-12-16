@@ -10,7 +10,17 @@ async function convertHeicToJpg(imageUrl) {
     }
 
     try {
+        // Check if heic2any is available
+        if (typeof heic2any === 'undefined') {
+            console.warn('heic2any library not loaded');
+            return imageUrl;
+        }
+
         const response = await fetch(imageUrl);
+        if (!response.ok) {
+            throw new Error('Failed to fetch image');
+        }
+        
         const blob = await response.blob();
         
         // Check if it's actually a HEIC file
@@ -71,13 +81,17 @@ function renderPortfolio(data) {
         bgContainer.className = 'portfolio__card-bg';
 
         // Add all images as hidden (we'll rotate them)
-        category.images.forEach(async (img, imgIndex) => {
+        category.images.forEach((img, imgIndex) => {
             const imgElement = document.createElement('img');
             
-            // Convert HEIC to JPG if needed
+            // Load image - convert HEIC if needed
             if (isHeicImage(img)) {
-                const convertedUrl = await convertHeicToJpg(img);
-                imgElement.src = convertedUrl;
+                imgElement.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3C/svg%3E';
+                convertHeicToJpg(img).then(convertedUrl => {
+                    imgElement.src = convertedUrl;
+                }).catch(err => {
+                    console.warn('HEIC conversion failed for card:', err);
+                });
             } else {
                 imgElement.src = img;
             }
@@ -160,28 +174,35 @@ function showCategoryImages(category, categoryIndex) {
             const img = document.createElement('img');
             const imageUrl = category.images[j];
             
-            // Convert HEIC to JPG if needed
-            (async function(imgElement, imgUrl, imagesArray, imageIndex) {
-                if (isHeicImage(imgUrl)) {
-                    const convertedUrl = await convertHeicToJpg(imgUrl);
-                    imgElement.src = convertedUrl;
-                } else {
-                    imgElement.src = imgUrl;
-                }
-                
-                imgElement.addEventListener('click', function() {
-                    openImageModal(imgElement.src, imagesArray, imageIndex);
-                });
-            })(img, imageUrl, category.images, j);
-            
             img.alt = category.title;
             img.loading = 'lazy';
+            
+            // Set src immediately for non-HEIC, convert HEIC async
+            if (isHeicImage(imageUrl)) {
+                // Show placeholder or load async
+                img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3C/svg%3E';
+                convertHeicToJpg(imageUrl).then(convertedUrl => {
+                    img.src = convertedUrl;
+                }).catch(err => {
+                    console.warn('HEIC conversion failed:', err);
+                    img.style.display = 'none';
+                });
+            } else {
+                img.src = imageUrl;
+            }
             
             // Add error handler for images that fail to load
             img.onerror = function() {
                 console.warn('Failed to load image:', this.src);
-                this.style.display = 'none'; // Hide broken images
+                this.style.display = 'none';
             };
+            
+            // Add click handler using closure
+            (function(imgElement, imagesArray, imageIndex) {
+                imgElement.addEventListener('click', function() {
+                    openImageModal(imgElement.src, imagesArray, imageIndex);
+                });
+            })(img, category.images, j);
             
             column.appendChild(img);
         }
