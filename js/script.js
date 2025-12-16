@@ -115,11 +115,12 @@ function showCategoryImages(category, categoryIndex) {
             img.src = category.images[j];
             img.alt = category.title;
             img.loading = 'lazy';
-            img.dataset.imageIndex = j; // Store index for modal navigation
-            img.dataset.categoryImages = JSON.stringify(category.images); // Store all category images
-            img.addEventListener('click', function() {
-                openImageModal(this.src, category.images, j);
-            });
+            // Use closure to capture the correct index and images array
+            (function(imageSrc, imagesArray, imageIndex) {
+                img.addEventListener('click', function() {
+                    openImageModal(imageSrc, imagesArray, imageIndex);
+                });
+            })(category.images[j], category.images, j);
             column.appendChild(img);
         }
         
@@ -268,6 +269,8 @@ function handleSwipe() {
 function initializeImageModal() {
     const modal = document.getElementById("imageModal");
     const closeModal = document.getElementById("closeModal");
+    const modalPrev = document.getElementById("modalPrev");
+    const modalNext = document.getElementById("modalNext");
 
     if (!modal || !closeModal) {
         console.error("Modal elements not found");
@@ -276,6 +279,21 @@ function initializeImageModal() {
 
     // Close modal when clicking close button
     closeModal.addEventListener("click", closeImageModal);
+
+    // Navigation arrow buttons
+    if (modalPrev) {
+        modalPrev.addEventListener("click", function(e) {
+            e.stopPropagation();
+            navigateModal('prev');
+        });
+    }
+    
+    if (modalNext) {
+        modalNext.addEventListener("click", function(e) {
+            e.stopPropagation();
+            navigateModal('next');
+        });
+    }
 
     // Close modal when clicking outside the image
     modal.addEventListener("click", function (e) {
@@ -298,8 +316,11 @@ function initializeImageModal() {
     });
 
     // Touch/swipe navigation
-    modal.addEventListener("touchstart", handleTouchStart, false);
-    modal.addEventListener("touchend", handleTouchEnd, false);
+    const modalImg = document.getElementById("modalImage");
+    if (modalImg) {
+        modalImg.addEventListener("touchstart", handleTouchStart, false);
+        modalImg.addEventListener("touchend", handleTouchEnd, false);
+    }
 }
 
 // Contact Form Handler
