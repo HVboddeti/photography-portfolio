@@ -89,22 +89,22 @@ nav {
 }
 
 .nav__header {
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: rgba(238, 249, 248, 0.95);
-  backdrop-filter: blur(10px);
+  background-color: rgba(238, 249, 248, 0.5);
+  backdrop-filter: blur(5px);
 }
 
 .nav__logo img {
-    max-width: 120px;
+    max-width: 80px;
     height: auto;
 }
 
 .nav__menu__btn {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   color: var(--text-dark);
   cursor: pointer;
   z-index: 10;
