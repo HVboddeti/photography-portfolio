@@ -68,6 +68,47 @@ document.getElementById('logout-btn').addEventListener('click', function() {
     location.reload();
 });
 
+// Render Portfolio Categories
+function renderCategories() {
+    const container = document.getElementById('categories-container');
+    container.innerHTML = '';
+
+    portfolioData.portfolioCategories.forEach((category, categoryIndex) => {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'category-section';
+        
+        categoryDiv.innerHTML = `
+            <div class="category-header">
+                <h3>${category.title}</h3>
+                <div class="category-actions">
+                    <button class="btn-secondary" onclick="deleteCategory(${categoryIndex})">
+                        <i class="ri-delete-bin-line"></i> Delete Category
+                    </button>
+                </div>
+            </div>
+            <div class="image-upload-area" data-category="${categoryIndex}">
+                <label class="upload-box">
+                    <i class="ri-upload-cloud-line"></i>
+                    <span>Click to upload images or drag & drop</span>
+                    <input type="file" accept="image/*" multiple onchange="handleImageUpload(event, ${categoryIndex})">
+                </label>
+            </div>
+            <div class="images-grid" id="images-grid-${categoryIndex}">
+                ${category.images.map((img, imgIndex) => `
+                    <div class="image-item">
+                        <img src="${img}" alt="${category.title}">
+                        <button class="delete-img-btn" onclick="deleteImage(${categoryIndex}, ${imgIndex})">
+                            <i class="ri-close-line"></i>
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        container.appendChild(categoryDiv);
+    });
+}
+
 // Handle Image Upload
 async function handleImageUpload(event, categoryIndex) {
     event.preventDefault();
@@ -110,89 +151,6 @@ async function handleImageUpload(event, categoryIndex) {
             if (uploadedUrls.length > 0) {
                 portfolioData.portfolioCategories[categoryIndex].images.push(...uploadedUrls);
                 renderCategories();
-                showNotification(`${uploadedUrls.length} image(s) added! Click "Save All Changes" to persist.`, 'success');
-            }
-        } else if (error && error.status !== 'dismissed') {
-            showNotification('Upload failed: ' + error.message, 'error');
-        }
-    });
-}
-        categoryDiv.className = 'category-section';
-        
-        categoryDiv.innerHTML = `
-            <div class="category-header">
-                <h3>${category.title}</h3>
-                <div class="category-actions">
-                    <button class="btn-secondary" onclick="deleteCategory(${categoryIndex})">
-                        <i class="ri-delete-bin-line"></i> Delete Category
-                    </button>
-                </div>
-            </div>
-            <div class="image-upload-area" data-category="${categoryIndex}">
-                <label class="upload-box">
-                    <i class="ri-upload-cloud-line"></i>
-                    <span>Click to upload images or drag & drop</span>
-                    <input type="file" accept="image/*" multiple onchange="handleImageUpload(event, ${categoryIndex})">
-                </label>
-            </div>
-            <div class="images-grid" id="images-grid-${categoryIndex}">
-                ${category.images.map((img, imgIndex) => `
-                    <div class="image-item">
-                        <img src="${img}" alt="${category.title}">
-                        <button class="delete-img-btn" onclick="deleteImage(${categoryIndex}, ${imgIndex})">
-                            <i class="ri-close-line"></i>
-                        </button>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-        
-        container.appendChild(categoryDiv);
-    });
-}
-
-// Handle Image Upload
-function handleImageUpload(event, categoryIndex) {
-    event.preventDefault();
-    
-    const cloudName = localStorage.getItem(CLOUDINARY_KEY) || cloudinaryCloudName;
-    
-    if (!cloudName) {
-        showNotification('Please set your Cloudinary Cloud Name in the Settings tab first.', 'error');
-        // Switch to Settings tab
-        document.querySelector('[data-tab="settings"]').click();
-        return;
-    }
-    
-    // Check if Cloudinary widget is loaded
-    if (typeof cloudinary === 'undefined') {
-        showNotification('Cloudinary widget is loading... please try again in a moment.', 'error');
-        loadCloudinaryScript();
-        return;
-    }
-    
-    // Open Cloudinary upload widget
-    cloudinary.openUploadWidget({
-        cloudName: cloudName,
-        uploadPreset: 'portfolio_present',  // Ensure this preset exists in your Cloudinary account
-        multiple: true,  // Allow multiple file selection
-        maxFiles: 20,    // Limit to 20 files at once
-        resourceType: 'image',
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        maxFileSize: 20000000,  // 20MB max
-        folder: 'portfolio'     // Optional: organize uploads in a folder
-    }, function(error, result) {
-        if (!error && result && result.event === "queues-end") {
-            // Process all successful uploads
-            const uploadedUrls = result.info.files.map(file => file.uploadInfo.secure_url);
-            
-            if (uploadedUrls.length > 0) {
-                // Add all URLs to the category
-                portfolioData.portfolioCategories[categoryIndex].images.push(...uploadedUrls);
-                
-                // Re-render the category
-                renderCategories();
-                
                 showNotification(`${uploadedUrls.length} image(s) added! Click "Save All Changes" to persist.`, 'success');
             }
         } else if (error && error.status !== 'dismissed') {
