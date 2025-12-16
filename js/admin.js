@@ -1,16 +1,42 @@
 // Admin Panel JavaScript
 const ADMIN_PASSWORD = "harsha2024"; // Change this to your secure password
 const CLOUDINARY_KEY = 'cloudinary_cloud_name';
+const SAVE_ENDPOINT = '/.netlify/functions/save-portfolio';
 let portfolioData = null;
 let cloudinaryCloudName = localStorage.getItem(CLOUDINARY_KEY) || '';
+let cloudinaryReady = false;
+let cloudinaryLoading = false;
 
 // Load Cloudinary Script
 function loadCloudinaryScript() {
-    if (!window.cloudinary) {
+    if (window.cloudinary) {
+        cloudinaryReady = true;
+        return Promise.resolve(true);
+    }
+
+    if (cloudinaryLoading) {
+        return new Promise(resolve => {
+            document.addEventListener('cloudinary:ready', () => resolve(true), { once: true });
+        });
+    }
+
+    cloudinaryLoading = true;
+
+    return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = 'https://upload-widget.cloudinary.com/latest/CloudinaryUploadWidget.js';
+        script.onload = () => {
+            cloudinaryReady = true;
+            cloudinaryLoading = false;
+            document.dispatchEvent(new Event('cloudinary:ready'));
+            resolve(true);
+        };
+        script.onerror = (err) => {
+            cloudinaryLoading = false;
+            reject(err);
+        };
         document.body.appendChild(script);
-    }
+    });
 }
 
 // Check if already logged in
@@ -42,51 +68,55 @@ document.getElementById('logout-btn').addEventListener('click', function() {
     location.reload();
 });
 
-// Show Dashboard
-async function showDashboard() {
-    document.getElementById('login-section').classList.add('hidden');
-    document.getElementById('admin-dashboard').classList.remove('hidden');
+// Handle Image Upload
+async function handleImageUpload(event, categoryIndex) {
+    event.preventDefault();
     
-    await loadData();
-    if (cloudinaryCloudName) loadCloudinaryScript();
-    renderCategories();
-    populateSiteInfo();
-    populateContactInfo();
-}
-
-// Load Portfolio Data
-async function loadData() {
-    try {
-        const response = await fetch('data/portfolio-data.json');
-        portfolioData = await response.json();
-    } catch (error) {
-        console.error('Error loading data:', error);
-        showNotification('Error loading data', 'error');
+    const cloudName = localStorage.getItem(CLOUDINARY_KEY) || cloudinaryCloudName;
+    
+    if (!cloudName) {
+        showNotification('Please set your Cloudinary Cloud Name in the Settings tab first.', 'error');
+        document.querySelector('[data-tab="settings"]').click();
+        return;
     }
-}
+    
+    try {
+        await loadCloudinaryScript();
+    } catch (err) {
+        showNotification('Cloudinary failed to load. Please refresh and try again.', 'error');
+        return;
+    }
 
-// Tab Switching
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const tabName = this.dataset.tab;
-        
-        // Remove active class from all tabs and contents
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        // Add active class to clicked tab
-        this.classList.add('active');
-        document.getElementById(tabName + '-tab').classList.add('active');
+    if (typeof cloudinary === 'undefined') {
+        showNotification('Cloudinary is still loading. Please try again in a moment.', 'error');
+        return;
+    }
+    
+    // Open Cloudinary upload widget
+    cloudinary.openUploadWidget({
+        cloudName: cloudName,
+        uploadPreset: 'portfolio_present',  // Ensure this preset exists in your Cloudinary account
+        multiple: true,  // Allow multiple file selection
+        maxFiles: 20,    // Limit to 20 files at once
+        resourceType: 'image',
+        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        maxFileSize: 20000000,  // 20MB max
+        folder: 'portfolio'     // Optional: organize uploads in a folder
+    }, function(error, result) {
+        if (!error && result && result.event === "queues-end") {
+            // Process all successful uploads
+            const uploadedUrls = result.info.files.map(file => file.uploadInfo.secure_url);
+            
+            if (uploadedUrls.length > 0) {
+                portfolioData.portfolioCategories[categoryIndex].images.push(...uploadedUrls);
+                renderCategories();
+                showNotification(`${uploadedUrls.length} image(s) added! Click "Save All Changes" to persist.`, 'success');
+            }
+        } else if (error && error.status !== 'dismissed') {
+            showNotification('Upload failed: ' + error.message, 'error');
+        }
     });
-});
-
-// Render Portfolio Categories
-function renderCategories() {
-    const container = document.getElementById('categories-container');
-    container.innerHTML = '';
-
-    portfolioData.portfolioCategories.forEach((category, categoryIndex) => {
-        const categoryDiv = document.createElement('div');
+}
         categoryDiv.className = 'category-section';
         
         categoryDiv.innerHTML = `
@@ -312,20 +342,53 @@ document.getElementById('contact-form-info').addEventListener('submit', function
 });
 
 // Save All Changes
-function saveAllChanges() {
-    // In a real application, this would send data to a server
-    // For now, we'll download it as a JSON file and show instructions
-    
-    const dataStr = JSON.stringify(portfolioData, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'portfolio-data.json';
-    link.click();
-    
-    showNotification('✅ Changes saved! Download the JSON file and replace data/portfolio-data.json', 'success', 5000);
+async function saveAllChanges() {
+    const autoSave = localStorage.getItem('auto_save_enabled') === 'true';
+
+    if (!autoSave) {
+        // Manual download path
+        const dataStr = JSON.stringify(portfolioData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'portfolio-data.json';
+        link.click();
+        showNotification('✅ Downloaded JSON. Replace data/portfolio-data.json and push to deploy.', 'success', 5000);
+        return;
+    }
+
+    // Auto-save via Netlify Function
+    try {
+        let token = null;
+        if (window.netlifyIdentity && netlifyIdentity.currentUser()) {
+            token = await netlifyIdentity.currentUser().jwt();
+        }
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const response = await fetch(SAVE_ENDPOINT, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ data: portfolioData, commitMessage: 'Update portfolio data via admin' })
+        });
+
+        if (!response.ok) {
+            throw new Error('Save function error');
+        }
+
+        showNotification('✅ Changes saved and committed! Netlify will redeploy shortly.', 'success', 5000);
+    } catch (err) {
+        const dataStr = JSON.stringify(portfolioData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'portfolio-data.json';
+        link.click();
+        showNotification('⚠️ Auto-save failed. Download the JSON and replace data/portfolio-data.json manually.', 'error', 6000);
+    }
 }
 
 // Show Notification
@@ -353,6 +416,13 @@ document.addEventListener('DOMContentLoaded', function() {
         loadCloudinaryScript();
     }
 
+    // Load auto-save preference
+    const autoSavePref = localStorage.getItem('auto_save_enabled');
+    const autoSaveToggle = document.getElementById('auto-save-toggle');
+    if (autoSaveToggle) {
+        autoSaveToggle.checked = autoSavePref === 'true';
+    }
+
     // Settings Form Submit
     const settingsForm = document.getElementById('settings-form');
     if (settingsForm) {
@@ -361,6 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const cloudName = document.getElementById('cloudinary-cloud-name').value;
             const newPassword = document.getElementById('admin-password-setting').value;
+            const autoSaveToggle = document.getElementById('auto-save-toggle');
             
             if (cloudName) {
                 localStorage.setItem(CLOUDINARY_KEY, cloudName);
@@ -372,6 +443,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (newPassword) {
                 // You can optionally update the password (for demonstration only)
                 showNotification('✅ Settings updated!', 'success');
+            }
+
+            if (autoSaveToggle) {
+                localStorage.setItem('auto_save_enabled', autoSaveToggle.checked ? 'true' : 'false');
+                showNotification(`Auto-save ${autoSaveToggle.checked ? 'enabled' : 'disabled'}.`, autoSaveToggle.checked ? 'success' : 'error');
             }
         });
     }
@@ -398,6 +474,23 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
         });
     });
+
+    // Netlify Identity login button
+    const netlifyLoginBtn = document.getElementById('netlify-login-btn');
+    if (netlifyLoginBtn && window.netlifyIdentity) {
+        netlifyLoginBtn.addEventListener('click', () => {
+            netlifyIdentity.open('login');
+        });
+
+        netlifyIdentity.on('login', () => {
+            showNotification('✅ Logged in. You can now auto-save to GitHub.', 'success');
+            netlifyIdentity.close();
+        });
+
+        netlifyIdentity.on('logout', () => {
+            showNotification('Logged out. Auto-save will fall back to manual download.', 'error');
+        });
+    }
 });
 
 // Initialize

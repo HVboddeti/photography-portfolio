@@ -137,8 +137,17 @@
                         <label>Admin Password</label>
                         <input type="password" id="admin-password-setting" placeholder="Change admin password (optional)">
                     </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" id="auto-save-toggle"> Enable auto-save to GitHub</label>
+                        <p class="help-text">When disabled, "Save All Changes" will download the JSON for manual replacement.</p>
+                    </div>
                     <button type="submit" class="btn">Save Settings</button>
                 </form>
+                <div class="form-group" style="margin-top: 12px;">
+                    <label>Netlify Identity</label>
+                    <button type="button" id="netlify-login-btn" class="btn-secondary">Login to authorize auto-save</button>
+                    <p class="help-text">Use your Netlify Identity account (role: admin). Required for automatic save-to-GitHub.</p>
+                </div>
             </div>
         </div>
 
@@ -149,5 +158,6 @@
     </div>
 
     <script src="js/admin.js"></script>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </body>
 </html>
