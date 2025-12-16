@@ -58,11 +58,70 @@ function renderPortfolio(data) {
         categoryCard.appendChild(overlay);
         portfolioContent.appendChild(categoryCard);
 
+        // Add click handler to show category images
+        categoryCard.addEventListener('click', () => {
+            showCategoryImages(category, index);
+        });
+
         // Start image rotation for this card
         if (category.images.length > 1) {
             rotateImages(categoryCard, category.images);
         }
     });
+}
+
+// Show all images from a category in 3-column grid
+function showCategoryImages(category, categoryIndex) {
+    const portfolioContent = document.getElementById('portfolio-content');
+    if (!portfolioContent) return;
+
+    portfolioContent.innerHTML = '';
+    portfolioContent.style.gridTemplateColumns = 'repeat(3, 1fr)';
+
+    // Add back button
+    const backBtn = document.createElement('button');
+    backBtn.className = 'portfolio__back-btn';
+    backBtn.innerHTML = '<i class="ri-arrow-left-line"></i> Back to Categories';
+    backBtn.addEventListener('click', () => {
+        renderPortfolio(portfolioData);
+    });
+    
+    const header = document.createElement('div');
+    header.className = 'portfolio__detail-header';
+    header.appendChild(backBtn);
+    
+    const titleEl = document.createElement('h2');
+    titleEl.className = 'portfolio__detail-title';
+    titleEl.textContent = category.title;
+    header.appendChild(titleEl);
+
+    portfolioContent.appendChild(header);
+
+    // Create 3-column grid for images
+    const grid = document.createElement('div');
+    grid.className = 'portfolio__detail-grid';
+
+    // Split images into 3 columns
+    const imagesPerColumn = Math.ceil(category.images.length / 3);
+    
+    for (let i = 0; i < 3; i++) {
+        const column = document.createElement('div');
+        column.className = 'portfolio__detail-column';
+        const startIndex = i * imagesPerColumn;
+        const endIndex = Math.min(startIndex + imagesPerColumn, category.images.length);
+        
+        for (let j = startIndex; j < endIndex; j++) {
+            const img = document.createElement('img');
+            img.src = category.images[j];
+            img.alt = category.title;
+            img.loading = 'lazy';
+            column.appendChild(img);
+        }
+        
+        grid.appendChild(column);
+    }
+
+    portfolioContent.appendChild(grid);
 }
 
 // Rotate images in a card every 3 seconds
