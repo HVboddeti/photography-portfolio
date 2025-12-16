@@ -370,11 +370,11 @@ function initializeImageModal() {
         return;
     }
 
-    // Close modal when clicking close bufunction(e) {
+    // Close modal when clicking close button
+    closeModal.addEventListener("click", function(e) {
         e.stopPropagation();
         closeImageModal();
-    }
-    closeModal.addEventListener("click", closeImageModal);
+    });
 
     // Navigation arrow buttons
     if (modalPrev) {
