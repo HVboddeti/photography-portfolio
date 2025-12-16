@@ -23,40 +23,59 @@ function renderPortfolio(data) {
 
     portfolioContent.innerHTML = '';
 
-    data.portfolioCategories.forEach(category => {
-        const categoryDiv = document.createElement('div');
-        categoryDiv.className = 'portfolio__category';
+    data.portfolioCategories.forEach((category, index) => {
+        const categoryCard = document.createElement('div');
+        categoryCard.className = 'portfolio__card';
+        categoryCard.id = `category-${index}`;
+
+        // Create background slideshow container
+        const bgContainer = document.createElement('div');
+        bgContainer.className = 'portfolio__card-bg';
+
+        // Add all images as hidden (we'll rotate them)
+        category.images.forEach((img, imgIndex) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = img;
+            imgElement.alt = category.title;
+            imgElement.className = 'portfolio__card-img';
+            if (imgIndex === 0) {
+                imgElement.classList.add('active');
+            }
+            bgContainer.appendChild(imgElement);
+        });
+
+        // Create overlay with title
+        const overlay = document.createElement('div');
+        overlay.className = 'portfolio__card-overlay';
 
         const title = document.createElement('h3');
-        title.className = 'portfolio__title';
+        title.className = 'portfolio__card-title';
         title.textContent = category.title;
 
-        const grid = document.createElement('div');
-        grid.className = 'portfolio__grid';
+        overlay.appendChild(title);
 
-        // Split images into 3 columns
-        const imagesPerColumn = Math.ceil(category.images.length / 3);
-        
-        for (let i = 0; i < 3; i++) {
-            const column = document.createElement('div');
-            const startIndex = i * imagesPerColumn;
-            const endIndex = Math.min(startIndex + imagesPerColumn, category.images.length);
-            
-            for (let j = startIndex; j < endIndex; j++) {
-                const img = document.createElement('img');
-                img.src = category.images[j];
-                img.alt = category.title;
-                img.loading = 'lazy'; // Add lazy loading for better performance
-                column.appendChild(img);
-            }
-            
-            grid.appendChild(column);
+        categoryCard.appendChild(bgContainer);
+        categoryCard.appendChild(overlay);
+        portfolioContent.appendChild(categoryCard);
+
+        // Start image rotation for this card
+        if (category.images.length > 1) {
+            rotateImages(categoryCard, category.images);
         }
-
-        categoryDiv.appendChild(title);
-        categoryDiv.appendChild(grid);
-        portfolioContent.appendChild(categoryDiv);
     });
+}
+
+// Rotate images in a card every 3 seconds
+function rotateImages(cardElement, images) {
+    let currentIndex = 0;
+
+    setInterval(() => {
+        const imgElements = cardElement.querySelectorAll('.portfolio__card-img');
+        imgElements.forEach(img => img.classList.remove('active'));
+        
+        currentIndex = (currentIndex + 1) % images.length;
+        imgElements[currentIndex].classList.add('active');
+    }, 3000);
 }
 
 // Update site information
