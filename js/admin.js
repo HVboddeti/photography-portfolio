@@ -7,59 +7,35 @@ let cloudinaryCloudName = localStorage.getItem(CLOUDINARY_KEY) || '';
 let cloudinaryReady = false;
 let cloudinaryLoading = false;
 
-// Load Cloudinary Script - waits for the widget to be available
+// Load Cloudinary Script
 function loadCloudinaryScript() {
-    if (window.cloudinary && window.cloudinary.openUploadWidget) {
-        console.log('Cloudinary widget already available');
-        cloudinaryReady = true;
-        return Promise.resolve(true);
-    }
+    // Not needed anymore - we upload directly to Cloudinary API
+    return Promise.resolve(true);
+}
 
-    if (cloudinaryLoading) {
-        console.log('Cloudinary already loading, waiting...');
-        return new Promise((resolve, reject) => {
-            let attempts = 0;
-            const checkInterval = setInterval(() => {
-                attempts++;
-                if (window.cloudinary && window.cloudinary.openUploadWidget) {
-                    clearInterval(checkInterval);
-                    cloudinaryReady = true;
-                    cloudinaryLoading = false;
-                    console.log('Cloudinary widget became available');
-                    resolve(true);
-                } else if (attempts > 50) { // 5 second timeout
-                    clearInterval(checkInterval);
-                    cloudinaryLoading = false;
-                    console.error('Cloudinary widget timeout');
-                    reject(new Error('Cloudinary widget failed to load'));
-                }
-            }, 100);
+// Upload image directly to Cloudinary
+async function uploadToCloudinary(file, cloudName, uploadPreset) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
+    formData.append('folder', 'portfolio');
+
+    try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            method: 'POST',
+            body: formData
         });
+
+        if (!response.ok) {
+            throw new Error(`Upload failed: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.secure_url;
+    } catch (error) {
+        console.error('Cloudinary upload error:', error);
+        throw error;
     }
-
-    cloudinaryLoading = true;
-    console.log('Waiting for Cloudinary widget to load from HTML script tag');
-
-    return new Promise((resolve, reject) => {
-        let attempts = 0;
-        const checkInterval = setInterval(() => {
-            attempts++;
-            console.log('Checking for Cloudinary widget... attempt', attempts);
-            
-            if (window.cloudinary && window.cloudinary.openUploadWidget) {
-                clearInterval(checkInterval);
-                cloudinaryReady = true;
-                cloudinaryLoading = false;
-                console.log('Cloudinary widget loaded successfully');
-                resolve(true);
-            } else if (attempts > 50) { // 5 second timeout
-                clearInterval(checkInterval);
-                cloudinaryLoading = false;
-                console.error('Cloudinary widget failed to load after timeout');
-                reject(new Error('Cloudinary widget not available'));
-            }
-        }, 100);
-    });
 }
 
 // Check if already logged in
@@ -172,10 +148,12 @@ function renderCategories() {
 
 // Handle Image Upload
 async function handleImageUpload(event, categoryIndex) {
-    event.preventDefault();
+    const files = event.target.files;
+    
+    if (files.length === 0) return;
     
     const cloudName = localStorage.getItem(CLOUDINARY_KEY) || cloudinaryCloudName;
-    console.log('Upload clicked. Cloud name:', cloudName);
+    console.log('Upload started. Cloud name:', cloudName);
     
     if (!cloudName) {
         showNotification('Please set your Cloudinary Cloud Name in the Settings tab first.', 'error');
@@ -183,51 +161,25 @@ async function handleImageUpload(event, categoryIndex) {
         return;
     }
     
+    showNotification('Uploading images...', 'success');
+    const uploadedUrls = [];
+    
     try {
-        console.log('Loading Cloudinary widget...');
-        await loadCloudinaryScript();
-        console.log('Cloudinary widget loaded');
-    } catch (err) {
-        console.error('Cloudinary load failed:', err);
-        showNotification('Cloudinary widget failed to load. Please check your connection and try again.', 'error');
-        return;
-    }
-
-    if (!window.cloudinary || !window.cloudinary.openUploadWidget) {
-        console.error('cloudinary.openUploadWidget not available');
-        showNotification('Cloudinary upload widget is not available.', 'error');
-        return;
-    }
-    
-    console.log('Opening Cloudinary widget...');
-    
-    // Open Cloudinary upload widget
-    window.cloudinary.openUploadWidget({
-        cloudName: cloudName,
-        uploadPreset: 'portfolio_present',
-        multiple: true,
-        maxFiles: 20,
-        resourceType: 'image',
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        maxFileSize: 20000000,
-        folder: 'portfolio'
-    }, function(error, result) {
-        console.log('Cloudinary result:', { error, event: result?.event });
-        
-        if (!error && result && result.event === "queues-end") {
-            console.log('Upload complete. Files:', result.info.files.length);
-            const uploadedUrls = result.info.files.map(file => file.uploadInfo.secure_url);
-            
-            if (uploadedUrls.length > 0) {
-                portfolioData.portfolioCategories[categoryIndex].images.push(...uploadedUrls);
-                renderCategories();
-                showNotification(`${uploadedUrls.length} image(s) added! Click "Save All Changes" to persist.`, 'success');
-            }
-        } else if (error && error.status !== 'dismissed') {
-            console.error('Upload error:', error);
-            showNotification('Upload failed: ' + (error.message || 'Unknown error'), 'error');
+        for (let file of files) {
+            console.log('Uploading file:', file.name);
+            const url = await uploadToCloudinary(file, cloudName, 'portfolio_present');
+            uploadedUrls.push(url);
+            console.log('Successfully uploaded:', file.name, '→', url);
         }
-    });
+        
+        // Add all URLs to the category
+        portfolioData.portfolioCategories[categoryIndex].images.push(...uploadedUrls);
+        renderCategories();
+        showNotification(`✅ ${uploadedUrls.length} image(s) uploaded! Click "Save All Changes" to persist.`, 'success');
+    } catch (error) {
+        console.error('Upload error:', error);
+        showNotification(`❌ Upload failed: ${error.message}`, 'error');
+    }
 }
 
 // Delete Image
