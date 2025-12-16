@@ -268,4 +268,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     
     // Initialize contact form
     initializeContactForm();
+
+    // Hamburger menu functionality
+    const menuBtn = document.getElementById("menu-btn");
+    const navLinks = document.getElementById("nav-links");
+    
+    if (menuBtn && navLinks) {
+        menuBtn.addEventListener("click", () => {
+            navLinks.classList.toggle("open");
+        });
+
+        // Close menu when clicking on a link
+        const links = navLinks.querySelectorAll("a");
+        links.forEach(link => {
+            link.addEventListener("click", () => {
+                navLinks.classList.remove("open");
+            });
+        });
+    }
 });

@@ -94,18 +94,20 @@ nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--extra-light);
+  background-color: rgba(238, 249, 248, 0.95);
+  backdrop-filter: blur(10px);
 }
 
 .nav__logo img {
-    max-width: 175px; /* Adjust size as needed */
+    max-width: 120px;
     height: auto;
 }
 
 .nav__menu__btn {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   color: var(--text-dark);
   cursor: pointer;
+  z-index: 10;
 }
 
 .nav__links {
@@ -119,9 +121,11 @@ nav {
   flex-direction: column;
   gap: 2rem;
   padding: 2rem;
-  background-color: var(--extra-light);
+  background-color: rgba(238, 249, 248, 0.98);
+  backdrop-filter: blur(10px);
   transition: transform 0.5s;
   z-index: -1;
+  transform: translateY(-100%);
 }
 
 .nav__links.open {
