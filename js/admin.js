@@ -47,23 +47,53 @@ function checkAuth() {
     }
 }
 
+// Show Dashboard
+async function showDashboard() {
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('admin-dashboard').classList.remove('hidden');
+    
+    await loadData();
+    if (cloudinaryCloudName) loadCloudinaryScript();
+    renderCategories();
+    populateSiteInfo();
+    populateContactInfo();
+}
+
+// Load Portfolio Data
+async function loadData() {
+    try {
+        const response = await fetch('data/portfolio-data.json');
+        portfolioData = await response.json();
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showNotification('Error loading data', 'error');
+    }
+}
+
 // Login Handler - wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded fired');
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
+        console.log('Login form found, attaching handler');
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            console.log('Login form submitted');
             const password = document.getElementById('admin-password').value;
             const errorMsg = document.getElementById('login-error');
 
             if (password === ADMIN_PASSWORD) {
+                console.log('Password correct, logging in');
                 sessionStorage.setItem('adminLoggedIn', 'true');
                 showDashboard();
                 errorMsg.textContent = '';
             } else {
+                console.log('Password incorrect');
                 errorMsg.textContent = '❌ Incorrect password!';
             }
         });
+    } else {
+        console.error('Login form not found');
     }
 
     // Logout Handler
