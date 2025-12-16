@@ -1,12 +1,41 @@
 // Dynamic Content Loading
 let portfolioData = null;
+let heicCache = new Map(); // Cache converted HEIC images
 
-// Filter out unsupported image formats (HEIC not supported in browsers)
-function filterSupportedImages(images) {
-    return images.filter(img => {
-        const ext = img.toLowerCase().split('.').pop();
-        return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext);
-    });
+// Convert HEIC image to JPG blob URL
+async function convertHeicToJpg(imageUrl) {
+    // Check cache first
+    if (heicCache.has(imageUrl)) {
+        return heicCache.get(imageUrl);
+    }
+
+    try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        
+        // Check if it's actually a HEIC file
+        if (blob.type === 'image/heic' || blob.type === 'image/heif' || imageUrl.toLowerCase().endsWith('.heic')) {
+            const convertedBlob = await heic2any({
+                blob: blob,
+                toType: 'image/jpeg',
+                quality: 0.9
+            });
+            const blobUrl = URL.createObjectURL(convertedBlob);
+            heicCache.set(imageUrl, blobUrl);
+            return blobUrl;
+        }
+        
+        // Not a HEIC file, return original URL
+        return imageUrl;
+    } catch (error) {
+        console.warn('Failed to convert HEIC image:', imageUrl, error);
+        return imageUrl; // Return original URL on error
+    }
+}
+
+// Check if image is HEIC format
+function isHeicImage(imageUrl) {
+    return imageUrl.toLowerCase().endsWith('.heic') || imageUrl.toLowerCase().endsWith('.heif');
 }
 
 // Load portfolio data from JSON
@@ -17,14 +46,6 @@ async function loadPortfolioData() {
             throw new Error('Failed to load portfolio data');
         }
         portfolioData = await response.json();
-        
-        // Filter out unsupported image formats from all categories
-        if (portfolioData && portfolioData.portfolioCategories) {
-            portfolioData.portfolioCategories.forEach(category => {
-                category.images = filterSupportedImages(category.images);
-            });
-        }
-        
         return portfolioData;
     } catch (error) {
         console.error('Error loading portfolio data:', error);
@@ -50,9 +71,17 @@ function renderPortfolio(data) {
         bgContainer.className = 'portfolio__card-bg';
 
         // Add all images as hidden (we'll rotate them)
-        category.images.forEach((img, imgIndex) => {
+        category.images.forEach(async (img, imgIndex) => {
             const imgElement = document.createElement('img');
-            imgElement.src = img;
+            
+            // Convert HEIC to JPG if needed
+            if (isHeicImage(img)) {
+                const convertedUrl = await convertHeicToJpg(img);
+                imgElement.src = convertedUrl;
+            } else {
+                imgElement.src = img;
+            }
+            
             imgElement.alt = category.title;
             imgElement.className = 'portfolio__card-img';
             if (imgIndex === 0) {
@@ -129,7 +158,22 @@ function showCategoryImages(category, categoryIndex) {
         
         for (let j = startIndex; j < endIndex; j++) {
             const img = document.createElement('img');
-            img.src = category.images[j];
+            const imageUrl = category.images[j];
+            
+            // Convert HEIC to JPG if needed
+            (async function(imgElement, imgUrl, imagesArray, imageIndex) {
+                if (isHeicImage(imgUrl)) {
+                    const convertedUrl = await convertHeicToJpg(imgUrl);
+                    imgElement.src = convertedUrl;
+                } else {
+                    imgElement.src = imgUrl;
+                }
+                
+                imgElement.addEventListener('click', function() {
+                    openImageModal(imgElement.src, imagesArray, imageIndex);
+                });
+            })(img, imageUrl, category.images, j);
+            
             img.alt = category.title;
             img.loading = 'lazy';
             
@@ -139,12 +183,6 @@ function showCategoryImages(category, categoryIndex) {
                 this.style.display = 'none'; // Hide broken images
             };
             
-            // Use closure to capture the correct index and images array
-            (function(imageSrc, imagesArray, imageIndex) {
-                img.addEventListener('click', function() {
-                    openImageModal(imageSrc, imagesArray, imageIndex);
-                });
-            })(category.images[j], category.images, j);
             column.appendChild(img);
         }
         
