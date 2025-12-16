@@ -47,26 +47,34 @@ function checkAuth() {
     }
 }
 
-// Login Handler
-document.getElementById('login-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const password = document.getElementById('admin-password').value;
-    const errorMsg = document.getElementById('login-error');
+// Login Handler - wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('admin-password').value;
+            const errorMsg = document.getElementById('login-error');
 
-    if (password === ADMIN_PASSWORD) {
-        sessionStorage.setItem('adminLoggedIn', 'true');
-        showDashboard();
-        errorMsg.textContent = '';
-    } else {
-        errorMsg.textContent = '❌ Incorrect password!';
+            if (password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                showDashboard();
+                errorMsg.textContent = '';
+            } else {
+                errorMsg.textContent = '❌ Incorrect password!';
+            }
+        });
     }
-});
 
-// Logout Handler
-document.getElementById('logout-btn').addEventListener('click', function() {
-    sessionStorage.removeItem('adminLoggedIn');
-    location.reload();
-});
+    // Logout Handler
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            sessionStorage.removeItem('adminLoggedIn');
+            location.reload();
+        });
+    }
+}, { once: true });
 
 // Render Portfolio Categories
 function renderCategories() {
@@ -449,7 +457,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showNotification('Logged out. Auto-save will fall back to manual download.', 'error');
         });
     }
-});
 
-// Initialize
-checkAuth();
+    // Initialize after DOM is ready
+    checkAuth();
+});
