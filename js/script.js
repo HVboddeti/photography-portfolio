@@ -56,6 +56,25 @@ async function loadPortfolioData() {
             throw new Error('Failed to load portfolio data');
         }
         portfolioData = await response.json();
+        
+        // Filter out HEIC files from all categories (not supported in browsers)
+        if (portfolioData && portfolioData.portfolioCategories) {
+            portfolioData.portfolioCategories.forEach(category => {
+                const originalCount = category.images.length;
+                category.images = category.images.filter(img => {
+                    const isHeic = img.toLowerCase().endsWith('.heic') || img.toLowerCase().endsWith('.heif');
+                    if (isHeic) {
+                        console.warn('Removing unsupported HEIC file:', img);
+                    }
+                    return !isHeic;
+                });
+                const removedCount = originalCount - category.images.length;
+                if (removedCount > 0) {
+                    console.log(`Removed ${removedCount} HEIC files from category: ${category.title}`);
+                }
+            });
+        }
+        
         console.log('Portfolio data loaded:', portfolioData);
         return portfolioData;
     } catch (error) {
@@ -92,19 +111,7 @@ function renderPortfolio(data) {
         // Add all images as hidden (we'll rotate them)
         category.images.forEach((img, imgIndex) => {
             const imgElement = document.createElement('img');
-            
-            // Load image - convert HEIC if needed
-            if (isHeicImage(img)) {
-                imgElement.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3C/svg%3E';
-                convertHeicToJpg(img).then(convertedUrl => {
-                    imgElement.src = convertedUrl;
-                }).catch(err => {
-                    console.warn('HEIC conversion failed for card:', err);
-                });
-            } else {
-                imgElement.src = img;
-            }
-            
+            imgElement.src = img; // All non-HEIC now
             imgElement.alt = category.title;
             imgElement.className = 'portfolio__card-img';
             if (imgIndex === 0) {
@@ -200,19 +207,7 @@ function showCategoryImages(category, categoryIndex) {
                 });
             } else {
                 img.src = imageUrl;
-            }
-            
-            // Add error handler for images that fail to load
-            img.onerror = function() {
-                console.warn('Failed to load image:', this.src);
-                this.style.display = 'none';
-            };
-            
-            // Add click handler
-            img.addEventListener('click', function(e) {
-                e.stopPropagation();
-                openImageModal(img.src, category.images, j);
-            });
+            img.src = imageUrl; // All non-HEIC now);
             
             column.appendChild(img);
         }
