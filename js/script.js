@@ -56,6 +56,7 @@ async function loadPortfolioData() {
             throw new Error('Failed to load portfolio data');
         }
         portfolioData = await response.json();
+        console.log('Portfolio data loaded:', portfolioData);
         return portfolioData;
     } catch (error) {
         console.error('Error loading portfolio data:', error);
@@ -66,10 +67,18 @@ async function loadPortfolioData() {
 // Render portfolio categories dynamically
 function renderPortfolio(data) {
     const portfolioContent = document.getElementById('portfolio-content');
-    if (!portfolioContent || !data.portfolioCategories) return;
+    console.log('renderPortfolio called with data:', data);
+    console.log('portfolio-content element:', portfolioContent);
+    
+    if (!portfolioContent || !data || !data.portfolioCategories) {
+        console.error('Missing data or portfolio-content element');
+        return;
+    }
 
     portfolioContent.innerHTML = '';
     portfolioContent.style.display = ''; // Reset display to default grid
+
+    console.log('Number of categories:', data.portfolioCategories.length);
 
     data.portfolioCategories.forEach((category, index) => {
         const categoryCard = document.createElement('div');
@@ -128,6 +137,8 @@ function renderPortfolio(data) {
             rotateImages(categoryCard, category.images);
         }
     });
+    
+    console.log('Portfolio rendered successfully');
 }
 
 // Show all images from a category in 3-column grid
@@ -493,39 +504,67 @@ async function sendWhatsAppMessage(name, email, message, status) {
             console.log("WhatsApp notification sent successfully.");
             status.textContent = "✅ Message sent successfully!";
             status.style.color = "green";
-    try {
-        // Load dynamic content first
-        const data = await loadPortfolioData();
-        if (data) {
-            updateSiteInfo(data);
-            renderPortfolio(data);
-            renderSocialLinks(data);
-            
-            // Initialize modal after portfolio is rendered
-            initializeImageModal();
+        } else {
+            throw new Error("Failed to send WhatsApp message.");
         }
-        
-        // Initialize contact form
-        initializeContactForm();
+    } catch (error) {
+        console.error("WhatsApp API Error:", error);
+        status.textContent = "⚠️ Failed to send message. Try again later.";
+        status.style.color = "red";
+    }
+}
 
-        // Hamburger menu functionality
-        const menuBtn = document.getElementById("menu-btn");
-        const navLinks = document.getElementById("nav-links");
+// Initialize everything when DOM is loaded
+document.addEventListener("DOMContentLoaded", async function () {
+    console.log('DOMContentLoaded fired');
+    
+    // Load dynamic content first
+    const data = await loadPortfolioData();
+    console.log('Data returned from loadPortfolioData:', data);
+    
+    if (data) {
+        updateSiteInfo(data);
+        renderPortfolio(data);
+        renderSocialLinks(data);
         
-        if (menuBtn && navLinks) {
-            menuBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                navLinks.classList.toggle("open");
-            });
+        // Initialize modal after portfolio is rendered
+        initializeImageModal();
+    } else {
+        console.error('No data loaded');
+    }
+    
+    // Initialize contact form
+    initializeContactForm();
 
-            // Close menu when clicking on a link
-            const links = navLinks.querySelectorAll("a");
-            links.forEach(link => {
-                link.addEventListener("click", () => {
-                    navLinks.classList.remove("open");
-                });
+    // Hamburger menu functionality
+    const menuBtn = document.getElementById("menu-btn");
+    const navLinks = document.getElementById("nav-links");
+    
+    if (menuBtn && navLinks) {
+        menuBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            navLinks.classList.toggle("open");
+        });
+
+        // Close menu when clicking on a link
+        const links = navLinks.querySelectorAll("a");
+        links.forEach(link => {
+            link.addEventListener("click", () => {
+                navLinks.classList.remove("open");
             });
-        }
+        });
+    }
+});
+
+// Global error handler to prevent crashes
+window.addEventListener('error', function(event) {
+    console.error('Global error caught:', event.error);
+});
+
+// Handle unhandled promise rejections
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('Unhandled promise rejection:', event.reason);
+    event.preventDefault(); // Prevent crashing
 });
 
 // Global error handler to prevent crashes
