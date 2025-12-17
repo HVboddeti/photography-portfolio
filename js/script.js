@@ -561,14 +561,3 @@ window.addEventListener('unhandledrejection', function(event) {
     console.error('Unhandled promise rejection:', event.reason);
     event.preventDefault(); // Prevent crashing
 });
-
-// Global error handler to prevent crashes
-window.addEventListener('error', function(event) {
-    console.error('Global error caught:', event.error);
-});
-
-// Handle unhandled promise rejections
-window.addEventListener('unhandledrejection', function(event) {
-    console.error('Unhandled promise rejection:', event.reason);
-    event.preventDefault(); // Prevent crashing
-});
