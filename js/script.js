@@ -192,23 +192,25 @@ function showCategoryImages(category, categoryIndex) {
         for (let j = startIndex; j < endIndex; j++) {
             const img = document.createElement('img');
             const imageUrl = category.images[j];
-            
+
             img.alt = category.title;
             img.loading = 'lazy';
-            
-            // Set src immediately for non-HEIC, convert HEIC async
-            if (isHeicImage(imageUrl)) {
-                img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3C/svg%3E';
-                convertHeicToJpg(imageUrl).then(convertedUrl => {
-                    img.src = convertedUrl;
-                }).catch(err => {
-                    console.warn('HEIC conversion failed:', err);
-                    img.style.display = 'none';
-                });
-            } else {
-                img.src = imageUrl;
-            img.src = imageUrl; // All non-HEIC now);
-            
+
+            // All HEIC files are filtered out during data load; set src directly
+            img.src = imageUrl;
+
+            // Hide broken images to avoid layout issues
+            img.onerror = function () {
+                console.warn('Failed to load image:', this.src);
+                this.style.display = 'none';
+            };
+
+            // Open modal on click without bubbling to parent
+            img.addEventListener('click', function (e) {
+                e.stopPropagation();
+                openImageModal(img.src, category.images, j);
+            });
+
             column.appendChild(img);
         }
         
