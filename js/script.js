@@ -95,7 +95,8 @@ function renderPortfolio(data) {
     }
 
     portfolioContent.innerHTML = '';
-    portfolioContent.style.display = ''; // Reset display to default grid
+    // Reset any inline styles that may force incorrect layout
+    portfolioContent.removeAttribute('style');
 
     console.log('Number of categories:', data.portfolioCategories.length);
 
@@ -114,6 +115,13 @@ function renderPortfolio(data) {
             imgElement.src = img; // All non-HEIC now
             imgElement.alt = category.title;
             imgElement.className = 'portfolio__card-img';
+
+            // Fallback if the card background image fails to load
+            imgElement.onerror = function () {
+                console.warn('Card image failed to load:', this.src);
+                this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23eee" width="100" height="100"/%3E%3Ctext x="50" y="55" font-size="12" text-anchor="middle" fill="%23999"%3ENo Image%3C/text%3E%3C/svg%3E';
+            };
+
             if (imgIndex === 0) {
                 imgElement.classList.add('active');
             }
@@ -199,10 +207,10 @@ function showCategoryImages(category, categoryIndex) {
             // All HEIC files are filtered out during data load; set src directly
             img.src = imageUrl;
 
-            // Hide broken images to avoid layout issues
+            // Replace broken images with a visible placeholder so grid stays intact
             img.onerror = function () {
                 console.warn('Failed to load image:', this.src);
-                this.style.display = 'none';
+                this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23eee" width="100" height="100"/%3E%3Ctext x="50" y="55" font-size="12" text-anchor="middle" fill="%23999"%3ENo Image%3C/text%3E%3C/svg%3E';
             };
 
             // Open modal on click without bubbling to parent
