@@ -2,6 +2,17 @@
 let portfolioData = null;
 let heicCache = new Map(); // Cache converted HEIC images
 
+// Ensure local asset URLs resolve correctly in production
+function normalizeImageUrl(url) {
+    if (!url) return url;
+    // Leave external URLs as-is
+    if (/^https?:\/\//i.test(url)) return url;
+    // Already absolute
+    if (url.startsWith('/')) return url;
+    // Make root-relative to avoid nested path issues
+    return '/' + url;
+}
+
 // Convert HEIC image to JPG blob URL
 async function convertHeicToJpg(imageUrl) {
     // Check cache first
@@ -110,9 +121,17 @@ function renderPortfolio(data) {
         bgContainer.className = 'portfolio__card-bg';
 
         // Add all images as hidden (we'll rotate them)
+        if (!category.images || category.images.length === 0) {
+            // Still render a card with title so user can see category exists
+            const emptyImg = document.createElement('img');
+            emptyImg.className = 'portfolio__card-img active';
+            emptyImg.alt = category.title;
+            emptyImg.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23eee" width="100" height="100"/%3E%3Ctext x="50" y="55" font-size="12" text-anchor="middle" fill="%23999"%3ENo Images%3C/text%3E%3C/svg%3E';
+            bgContainer.appendChild(emptyImg);
+        } else {
         category.images.forEach((img, imgIndex) => {
             const imgElement = document.createElement('img');
-            imgElement.src = img; // All non-HEIC now
+            imgElement.src = normalizeImageUrl(img); // All non-HEIC now
             imgElement.alt = category.title;
             imgElement.className = 'portfolio__card-img';
 
@@ -127,6 +146,7 @@ function renderPortfolio(data) {
             }
             bgContainer.appendChild(imgElement);
         });
+        }
 
         // Create overlay with title
         const overlay = document.createElement('div');
@@ -199,7 +219,7 @@ function showCategoryImages(category, categoryIndex) {
         
         for (let j = startIndex; j < endIndex; j++) {
             const img = document.createElement('img');
-            const imageUrl = category.images[j];
+            const imageUrl = normalizeImageUrl(category.images[j]);
 
             img.alt = category.title;
             img.loading = 'lazy';
@@ -342,7 +362,7 @@ function navigateModal(direction) {
 
     const modalImg = document.getElementById("modalImage");
     if (modalImg) {
-        modalImg.src = currentModalImages[currentModalIndex];
+        modalImg.src = normalizeImageUrl(currentModalImages[currentModalIndex]);
     }
 }
 

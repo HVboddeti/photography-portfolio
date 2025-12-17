@@ -216,6 +216,7 @@ nav {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+  min-height: 30vh; /* Ensure visible area even if images fail */
 }
 
 .portfolio__card {
@@ -225,6 +226,7 @@ nav {
   aspect-ratio: 1;
   cursor: pointer;
   transition: transform 0.3s ease;
+  background: #f3f3f3; /* subtle fallback bg */
 }
 
 .portfolio__card:hover {
