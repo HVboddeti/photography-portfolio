@@ -2,6 +2,7 @@
 let portfolioData = null;
 let heicCache = new Map(); // Cache converted HEIC images
 const ASSET_VERSION = 'v3'; // cache-busting token for static assets
+let inDetailView = false; // Track when a category grid is open
 
 // Ensure local asset URLs resolve correctly in production
 function normalizeImageUrl(url) {
@@ -109,6 +110,7 @@ function renderPortfolio(data) {
     portfolioContent.innerHTML = '';
     // Reset any inline styles that may force incorrect layout
     portfolioContent.removeAttribute('style');
+    inDetailView = false; // back to category cards
 
     console.log('Number of categories:', data.portfolioCategories.length);
 
@@ -184,6 +186,15 @@ function showCategoryImages(category, categoryIndex) {
 
     portfolioContent.innerHTML = '';
     portfolioContent.style.display = 'block'; // Change from grid to block for detail view
+    inDetailView = true;
+    // Keep URL anchored to portfolio while in detail view
+    try {
+        if (location.hash !== '#portfolio') {
+            history.replaceState(null, '', '#portfolio');
+        }
+    } catch (e) {
+        console.warn('Failed to set portfolio hash:', e);
+    }
 
     // Add back button
     const backBtn = document.createElement('button');
@@ -575,11 +586,29 @@ document.addEventListener("DOMContentLoaded", async function () {
         // Close menu when clicking on a link
         const links = navLinks.querySelectorAll("a");
         links.forEach(link => {
-            link.addEventListener("click", () => {
+            link.addEventListener("click", (e) => {
+                // If in detail view, prevent accidental navigation;
+                // user can use back button or explicitly choose nav.
+                if (inDetailView && link.getAttribute('href') === '#home') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    renderPortfolio(portfolioData);
+                }
                 navLinks.classList.remove("open");
             });
         });
     }
+
+    // Guard against accidental hash navigation to #home on mobile while viewing a category
+    window.addEventListener('hashchange', () => {
+        if (inDetailView && location.hash === '#home') {
+            try {
+                history.replaceState(null, '', '#portfolio');
+            } catch (e) {
+                console.warn('hashchange guard failed:', e);
+            }
+        }
+    });
 });
 
 // Global error handler to prevent crashes
