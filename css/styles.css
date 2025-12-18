@@ -779,19 +779,28 @@ nav {
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
-    .close-modal {
-        top: 15px;
-        right: 20px;
-        font-size: 35px;
-    }
+  .close-modal {
+    top: 15px;
+    right: 20px;
+    font-size: 32px;
+  }
+
+  /* Show arrows on mobile; reduce size for thumbs navigation */
+  .modal-nav {
+    display: block;
+    font-size: 36px;
+    padding: 12px;
+  }
+
+  .modal-nav-prev {
+    left: 10px;
+  }
+  .modal-nav-next {
+    right: 10px;
+  }
     
-    /* Hide arrows on mobile (use swipe instead) */
-    .modal-nav {
-        display: none;
-    }
-    
-    .image-modal img {
-        max-width: 95vw;
-        max-height: 85vh;
-    }
+  .image-modal img {
+    max-width: 95vw;
+    max-height: 80vh;
+  }
 }

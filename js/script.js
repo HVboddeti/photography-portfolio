@@ -483,9 +483,9 @@ function initializeImageModal() {
         }
     });
 
-    // Touch/swipe navigation
+    // Touch/swipe navigation (desktop/tablet only; disable on mobile to avoid back-swipe conflicts)
     const modalImg = document.getElementById("modalImage");
-    if (modalImg) {
+    if (modalImg && !isMobile) {
         modalImg.addEventListener("touchstart", handleTouchStart, false);
         modalImg.addEventListener("touchend", handleTouchEnd, false);
     }
