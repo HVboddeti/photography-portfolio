@@ -3,6 +3,7 @@ let portfolioData = null;
 let heicCache = new Map(); // Cache converted HEIC images
 const ASSET_VERSION = 'v3'; // cache-busting token for static assets
 let inDetailView = false; // Track when a category grid is open
+const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
 // Ensure local asset URLs resolve correctly in production
 function normalizeImageUrl(url) {
@@ -172,8 +173,8 @@ function renderPortfolio(data) {
             showCategoryImages(category, index);
         });
 
-        // Start image rotation for this card
-        if (category.images.length > 1) {
+        // Start image rotation for this card (skip on mobile to reduce crashes/memory)
+        if (category.images.length > 1 && !isMobile) {
             rotateImages(categoryCard, category.images);
         }
     });
