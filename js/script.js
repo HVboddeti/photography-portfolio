@@ -16,6 +16,16 @@ function normalizeImageUrl(url) {
     return `/${url}?v=${ASSET_VERSION}`;
 }
 
+// Apply Cloudinary transforms for performance
+function optimizeImageUrl(url, variant = 'grid') {
+    // Only transform Cloudinary URLs
+    if (!url || !url.includes('res.cloudinary.com')) return url;
+    const quality = 'q_auto:eco';
+    const format = 'f_auto';
+    const width = variant === 'modal' ? 'w_1600' : 'w_900';
+    return url.replace('/upload/', `/upload/${format},${quality},${width}/`);
+}
+
 // Convert HEIC image to JPG blob URL
 async function convertHeicToJpg(imageUrl) {
     // Check cache first
@@ -137,7 +147,9 @@ function renderPortfolio(data) {
         } else {
         category.images.forEach((img, imgIndex) => {
             const imgElement = document.createElement('img');
-            imgElement.src = normalizeImageUrl(img); // All non-HEIC now
+            // Use optimized Cloudinary URLs when possible
+            const src = optimizeImageUrl(normalizeImageUrl(img), 'grid');
+            imgElement.src = src; // All non-HEIC now
             imgElement.alt = category.title;
             imgElement.className = 'portfolio__card-img';
 
@@ -191,14 +203,6 @@ function showCategoryImages(category, categoryIndex) {
     portfolioContent.innerHTML = '';
     portfolioContent.style.display = 'block'; // Change from grid to block for detail view
     inDetailView = true;
-    // Keep URL anchored to portfolio while in detail view
-    try {
-        if (location.hash !== '#portfolio') {
-            history.replaceState(null, '', '#portfolio');
-        }
-    } catch (e) {
-        console.warn('Failed to set portfolio hash:', e);
-    }
 
     // Add back button
     const backBtn = document.createElement('button');
@@ -239,7 +243,7 @@ function showCategoryImages(category, categoryIndex) {
         
         for (let j = startIndex; j < endIndex; j++) {
             const img = document.createElement('img');
-            const imageUrl = normalizeImageUrl(category.images[j]);
+            const imageUrl = optimizeImageUrl(normalizeImageUrl(category.images[j]), 'grid');
 
             img.alt = category.title;
             img.loading = 'lazy';
@@ -256,7 +260,7 @@ function showCategoryImages(category, categoryIndex) {
             // Open modal on click without bubbling to parent
             img.addEventListener('click', function (e) {
                 e.stopPropagation();
-                openImageModal(img.src, category.images, j);
+                openImageModal(optimizeImageUrl(category.images[j], 'modal'), category.images, j);
             });
 
             column.appendChild(img);
