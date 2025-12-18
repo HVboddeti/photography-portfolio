@@ -1,7 +1,7 @@
 // Dynamic Content Loading
 let portfolioData = null;
 let heicCache = new Map(); // Cache converted HEIC images
-const ASSET_VERSION = 'v2'; // cache-busting token for static assets
+const ASSET_VERSION = 'v3'; // cache-busting token for static assets
 
 // Ensure local asset URLs resolve correctly in production
 function normalizeImageUrl(url) {
