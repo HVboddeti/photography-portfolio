@@ -599,16 +599,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    // Guard against accidental hash navigation to #home on mobile while viewing a category
-    window.addEventListener('hashchange', () => {
-        if (inDetailView && location.hash === '#home') {
-            try {
-                history.replaceState(null, '', '#portfolio');
-            } catch (e) {
-                console.warn('hashchange guard failed:', e);
-            }
-        }
-    });
 });
 
 // Global error handler to prevent crashes
