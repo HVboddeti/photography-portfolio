@@ -98,6 +98,7 @@ async function loadPortfolioData() {
 
 // Render portfolio categories dynamically
 function renderPortfolio(data) {
+    console.log('renderPortfolio called, closing detail view');
     const portfolioContent = document.getElementById('portfolio-content');
     console.log('renderPortfolio called with data:', data);
     console.log('portfolio-content element:', portfolioContent);
@@ -111,6 +112,7 @@ function renderPortfolio(data) {
     // Reset any inline styles that may force incorrect layout
     portfolioContent.removeAttribute('style');
     inDetailView = false; // back to category cards
+    console.log('Detail view closed, returning to categories');
 
     console.log('Number of categories:', data.portfolioCategories.length);
 
@@ -181,6 +183,7 @@ function renderPortfolio(data) {
 
 // Show all images from a category in 3-column grid
 function showCategoryImages(category, categoryIndex) {
+    console.log(`Opening category: ${category.title}`);
     const portfolioContent = document.getElementById('portfolio-content');
     if (!portfolioContent) return;
 
@@ -199,9 +202,13 @@ function showCategoryImages(category, categoryIndex) {
     // Add back button
     const backBtn = document.createElement('button');
     backBtn.className = 'portfolio__back-btn';
+    backBtn.type = 'button'; // Ensure it's not treated as form submit
     backBtn.innerHTML = '<i class="ri-arrow-left-line"></i> Back to Categories';
     backBtn.addEventListener('click', (e) => {
+        console.log('Back button clicked');
+        e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation();
         renderPortfolio(portfolioData);
     });
     
