@@ -269,15 +269,30 @@ function showCategoryImages(category, categoryIndex) {
 
 // Rotate images in a card every 3 seconds
 function rotateImages(cardElement, images) {
-    let currentIndex = 0;
+    try {
+        let currentIndex = 0;
 
-    setInterval(() => {
-        const imgElements = cardElement.querySelectorAll('.portfolio__card-img');
-        imgElements.forEach(img => img.classList.remove('active'));
-        
-        currentIndex = (currentIndex + 1) % images.length;
-        imgElements[currentIndex].classList.add('active');
-    }, 3000);
+        const intervalId = setInterval(() => {
+            try {
+                const imgElements = cardElement.querySelectorAll('.portfolio__card-img');
+                if (!imgElements || imgElements.length === 0) {
+                    clearInterval(intervalId);
+                    return;
+                }
+                imgElements.forEach(img => img.classList.remove('active'));
+                
+                currentIndex = (currentIndex + 1) % images.length;
+                if (imgElements[currentIndex]) {
+                    imgElements[currentIndex].classList.add('active');
+                }
+            } catch (e) {
+                console.error('Error in rotateImages interval:', e);
+                clearInterval(intervalId);
+            }
+        }, 3000);
+    } catch (e) {
+        console.error('Error initializing rotateImages:', e);
+    }
 }
 
 // Update site information
@@ -611,6 +626,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 // Global error handler to prevent crashes
 window.addEventListener('error', function(event) {
     console.error('Global error caught:', event.error);
+    event.preventDefault();
 });
 
 // Handle unhandled promise rejections
@@ -618,3 +634,14 @@ window.addEventListener('unhandledrejection', function(event) {
     console.error('Unhandled promise rejection:', event.reason);
     event.preventDefault(); // Prevent crashing
 });
+
+// Additional safety: catch any synchronous errors in DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            console.log('DOM fully loaded and parsed');
+        } catch (e) {
+            console.error('Error in DOMContentLoaded handler:', e);
+        }
+    });
+}
