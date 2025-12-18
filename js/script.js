@@ -1,6 +1,7 @@
 // Dynamic Content Loading
 let portfolioData = null;
 let heicCache = new Map(); // Cache converted HEIC images
+const ASSET_VERSION = 'v2'; // cache-busting token for static assets
 
 // Ensure local asset URLs resolve correctly in production
 function normalizeImageUrl(url) {
@@ -8,9 +9,9 @@ function normalizeImageUrl(url) {
     // Leave external URLs as-is
     if (/^https?:\/\//i.test(url)) return url;
     // Already absolute
-    if (url.startsWith('/')) return url;
-    // Make root-relative to avoid nested path issues
-    return '/' + url;
+    if (url.startsWith('/')) return `${url}?v=${ASSET_VERSION}`;
+    // Make root-relative to avoid nested path issues and bust stale caches
+    return `/${url}?v=${ASSET_VERSION}`;
 }
 
 // Convert HEIC image to JPG blob URL
